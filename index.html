@@ -1,0 +1,2397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1118">
+  <title>FruitFinder — Blox Fruits Trade Hub</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #080e14;
+      color: #f6f5eb;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --muted: #9baabc;
+      --lime: #f6c768;
+      --panel: #101923;
+      --line: rgba(167, 190, 210, .15);
+      --purple: #c5a5ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      position: relative;
+      isolation: isolate;
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      background: #080e14;
+    }
+    body::before {
+      position: fixed;
+      z-index: -1;
+      inset: 0;
+      background:
+        radial-gradient(circle at 78% 17%, #ffe3ab 0 2px, rgba(255, 205, 132, .58) 3px 5px, rgba(255, 197, 117, .12) 6px 15px, transparent 16px),
+        radial-gradient(ellipse at 78% 17%, rgba(247, 185, 112, .23), transparent 23%),
+        radial-gradient(ellipse 34% 15% at 2% 45%, rgba(5, 14, 23, .95) 0 48%, transparent 52%),
+        radial-gradient(ellipse 27% 12% at 100% 44%, rgba(8, 15, 26, .92) 0 48%, transparent 53%),
+        radial-gradient(ellipse at 52% 47%, rgba(72, 165, 184, .24), transparent 33%),
+        radial-gradient(ellipse at 8% 16%, rgba(87, 116, 196, .2), transparent 31%),
+        radial-gradient(ellipse at 96% 28%, rgba(147, 85, 165, .19), transparent 32%),
+        linear-gradient(180deg, #0b1422 0%, #111c2c 32%, #102b3b 48%, #0c202c 70%, #07131d 100%),
+        repeating-linear-gradient(174deg, transparent 0 34px, rgba(144, 222, 229, .12) 35px, transparent 37px 70px);
+      background-attachment: fixed;
+      content: "";
+      pointer-events: none;
+    }
+    body::after {
+      position: fixed;
+      z-index: -1;
+      inset: 35% 0 0;
+      background:
+        linear-gradient(180deg, transparent, rgba(6, 17, 26, .16) 70%, rgba(4, 12, 19, .45)),
+        repeating-linear-gradient(168deg, transparent 0 66px, rgba(117, 200, 219, .07) 67px, transparent 69px 132px);
+      content: "";
+      pointer-events: none;
+    }
+
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+
+    .app { position: relative; z-index: 1; width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 28px 0 42px; }
+
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 19px; border-bottom: 1px solid rgba(167, 190, 210, .1); }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .profile-avatar-button { display: flex; min-width: 190px; min-height: 58px; align-items: center; gap: 10px; padding: 6px 12px 6px 7px; border: 1px solid rgba(246,199,104,.34); border-radius: 16px; background: linear-gradient(145deg, rgba(246,199,104,.11), rgba(54,119,160,.1)); color: inherit; text-align: left; cursor: pointer; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+    .profile-avatar-button:hover { transform: translateY(-2px); border-color: var(--lime); background: linear-gradient(145deg, rgba(246,199,104,.17), rgba(54,119,160,.14)); }
+    .profile-avatar-button:focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
+    .profile-avatar-icon { display: grid; width: 42px; height: 42px; flex: 0 0 42px; place-items: center; border: 1px solid rgba(246,199,104,.35); border-radius: 13px; background: radial-gradient(circle at 35% 25%, rgba(246,199,104,.2), rgba(54,119,160,.15)); overflow: hidden; }
+    .profile-avatar-art { width: 34px; height: 34px; object-fit: contain; font-size: 24px; }
+    .profile-avatar-copy { display: grid; min-width: 0; gap: 4px; }
+    .profile-avatar-title { color: #f6f5eb; font-size: 11px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+    .profile-avatar-description { max-width: 140px; overflow: hidden; color: #a9b5bf; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+    .profile-avatar-arrow { margin-left: auto; color: var(--lime); font-size: 13px; }
+    .brand-icon {
+      display: grid; width: 44px; height: 44px; place-items: center;
+      border: 1px solid rgba(246, 199, 104, .38); border-radius: 15px;
+      background: linear-gradient(145deg, rgba(246, 199, 104, .2), rgba(54, 119, 160, .16)); font-size: 24px;
+      box-shadow: inset 0 1px rgba(255,255,255,.1), 0 8px 24px rgba(0,0,0,.2);
+    }
+    .brand-name { margin: 0; font-size: 15px; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; }
+    .brand-subtitle { margin: 3px 0 0; color: var(--muted); font-size: 10px; letter-spacing: .11em; text-transform: uppercase; }
+    .updated-pill {
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px;
+      border: 1px solid var(--line); border-radius: 999px; color: #c2cddd; font-size: 11px;
+      background: rgba(18, 27, 38, .74);
+    }
+    .updated-pill::before { width: 7px; height: 7px; border-radius: 50%; background: #79dfa5; content: ""; box-shadow: 0 0 10px rgba(121, 223, 165, .7); }
+    .topbar-actions { display: flex; align-items: center; justify-content: flex-end; gap: 9px; flex-wrap: wrap; }
+    .profile-form { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .profile-input { width: 125px; height: 34px; padding: 0 9px; border: 1px solid #34485b; border-radius: 9px; outline: none; background: #0b131c; color: #f6f5eb; font-size: 10px; }
+    .profile-input:focus { border-color: var(--lime); }
+    .profile-password { width: 130px; }
+    .profile-button { min-height: 34px; padding: 0 10px; border: 1px solid rgba(246,199,104,.35); border-radius: 9px; background: rgba(246,199,104,.1); color: var(--lime); font-size: 10px; font-weight: 750; cursor: pointer; }
+    .profile-button:hover { background: rgba(246,199,104,.18); }
+    .profile-mode-button { min-height: 34px; padding: 0 5px; border: 0; background: transparent; color: #a9b5bf; font-size: 9px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+    .profile-mode-button:hover { color: var(--lime); }
+    .profile-status { color: #c2cddd; font-size: 10px; }
+    .profile-note { flex-basis: 100%; color: #8493a1; font-size: 9px; }
+    .profile-dialog { width: min(460px, calc(100% - 28px)); max-height: min(90vh, 680px); padding: 0; overflow: auto; border: 1px solid rgba(167,190,210,.24); border-radius: 20px; background: linear-gradient(145deg, #172431, #0c131c); color: #f6f5eb; box-shadow: 0 28px 90px rgba(0,0,0,.65); }
+    .profile-dialog::backdrop { background: rgba(3,8,13,.75); backdrop-filter: blur(5px); }
+    .profile-dialog-inner { padding: 22px; }
+    .profile-dialog-header { display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+    .profile-dialog-title { margin: 0; font-size: 20px; letter-spacing: -.04em; }
+    .profile-dialog-caption { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .profile-dialog-close { display: grid; width: 32px; height: 32px; flex: 0 0 32px; place-items: center; border: 1px solid var(--line); border-radius: 9px; background: rgba(9,15,22,.55); color: #c2cddd; font-size: 18px; cursor: pointer; }
+    .profile-card { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; padding: 15px; border: 1px solid var(--line); border-radius: 15px; background: rgba(9,15,22,.48); }
+    .profile-dialog-avatar { display: grid; width: 62px; height: 62px; flex: 0 0 62px; place-items: center; border: 1px solid rgba(246,199,104,.35); border-radius: 20px; background: radial-gradient(circle at 35% 25%, rgba(246,199,104,.24), rgba(54,119,160,.15)); overflow: hidden; }
+    .profile-dialog-avatar .profile-avatar-art { width: 50px; height: 50px; font-size: 34px; }
+    .profile-card-name { overflow-wrap: anywhere; margin: 0; font-size: 15px; font-weight: 800; }
+    .profile-card-label { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .profile-settings { display: grid; gap: 11px; }
+    .profile-setting { padding: 14px; border: 1px solid var(--line); border-radius: 13px; background: rgba(9,15,22,.35); }
+    .profile-setting h3 { margin: 0; font-size: 12px; }
+    .profile-setting p { margin: 5px 0 10px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .profile-setting-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .profile-setting-input, .profile-avatar-select { min-width: 0; height: 37px; flex: 1; padding: 0 10px; border: 1px solid #34485b; border-radius: 9px; outline: none; background: #0b131c; color: #f6f5eb; font-size: 11px; }
+    .profile-setting-input:focus, .profile-avatar-select:focus { border-color: var(--lime); }
+    .profile-setting-form { display: grid; gap: 8px; }
+    .profile-setting-message { min-height: 14px; margin: 7px 0 0 !important; color: #a9e3b9 !important; }
+    .profile-dialog-note { margin: 14px 0 0; color: #8493a1; font-size: 9px; line-height: 1.6; }
+    .profile-guest { padding: 16px; border: 1px solid var(--line); border-radius: 13px; color: #c2cddd; font-size: 11px; line-height: 1.6; }
+    .stock-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 18px; }
+    .stock-edit-button { margin-top: 8px; }
+    .stock-head-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+    .stock-view-tabs { display: flex; gap: 6px; margin-bottom: 14px; padding: 5px; border: 1px solid var(--line); border-radius: 12px; background: rgba(9,15,22,.55); }
+    .stock-view-tab { min-height: 38px; flex: 1; border: 0; border-radius: 8px; background: transparent; color: #a9b5bf; font-size: 11px; font-weight: 800; cursor: pointer; }
+    .stock-view-tab[aria-selected="true"] { background: linear-gradient(135deg, #f8d78e, #edb95b); color: #211b0e; }
+    .stock-live-content[hidden], .stock-manual-content[hidden] { display: none; }
+    .stock-board-note { margin: 0 0 16px; padding: 11px 13px; border: 1px solid rgba(246,199,104,.2); border-radius: 11px; background: rgba(246,199,104,.055); color: #c2cddd; font-size: 10px; line-height: 1.6; }
+    .stock-live-note { margin: 14px 2px 0; color: #858a79; font-size: 10px; line-height: 1.6; }
+    .stock-live-note a { color: #c2cddd; text-underline-offset: 3px; }
+    .stock-status[data-state="error"] { color: #ff9a8b; }
+    .stock-status[data-state="loading"] { color: #ffce75; }
+    .stock-item-price { margin-top: 5px; color: #f6c768; font-size: 9px; font-weight: 750; }
+    .stock-label { display: inline-flex; align-items: center; gap: 7px; color: #ffce75; font-size: 9px; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
+    .stock-label::before { width: 7px; height: 7px; border-radius: 50%; background: #ffce75; content: ""; box-shadow: 0 0 10px rgba(255,206,117,.5); }
+    .stock-tabs { display: flex; gap: 6px; margin-bottom: 17px; padding: 5px; border: 1px solid var(--line); border-radius: 12px; background: rgba(9,15,22,.55); }
+    .stock-tab { min-height: 38px; flex: 1; border: 0; border-radius: 8px; background: transparent; color: #a9b5bf; font-size: 11px; font-weight: 800; cursor: pointer; }
+    .stock-tab[aria-selected="true"] { background: linear-gradient(135deg, #f8d78e, #edb95b); color: #211b0e; }
+    .stock-status { color: var(--muted); font-size: 10px; text-align: right; }
+    .stock-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
+    .stock-item { display: grid; min-width: 0; grid-template-columns: 1fr auto; align-items: center; gap: 8px; padding: 10px; border: 1px solid rgba(167,190,210,.16); border-radius: 14px; background: linear-gradient(145deg, rgba(23,36,49,.96), rgba(15,24,34,.98)); }
+    .stock-item-visual { position: relative; display: grid; grid-column: 1 / -1; height: 100px; place-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.07); border-radius: 10px; background: radial-gradient(ellipse at 50% 80%, rgba(93,145,169,.25), transparent 60%), #14212d; }
+    .stock-item-visual .fruit-image { width: 88px; height: 88px; }
+    .stock-item-copy { min-width: 0; }
+    .stock-item-name { min-width: 0; overflow: hidden; font-size: 11px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+    .stock-item-type { margin-top: 4px; color: var(--muted); font-size: 9px; }
+    .stock-item-tag { padding: 5px 7px; border: 1px solid rgba(121,223,165,.23); border-radius: 7px; background: rgba(121,223,165,.08); color: #91e8b3; font-size: 8px; font-weight: 850; letter-spacing: .07em; text-transform: uppercase; }
+    .stock-editor-dialog { width: min(540px, calc(100% - 28px)); }
+    .stock-picker-row { display: flex; gap: 8px; margin-bottom: 15px; }
+    .stock-fruit-input { height: 38px; flex: 1; padding: 0 10px; border: 1px solid #34485b; border-radius: 9px; outline: none; background: #0b131c; color: #f6f5eb; font-size: 11px; }
+    .stock-fruit-input:focus { border-color: var(--lime); }
+    .stock-draft-list { display: grid; gap: 7px; max-height: 300px; overflow: auto; }
+    .stock-draft-item { display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: rgba(9,15,22,.44); }
+    .stock-draft-item img, .stock-draft-item .picker-icon { display: grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; object-fit: contain; }
+    .stock-draft-name { min-width: 0; flex: 1; overflow: hidden; font-size: 10px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+    .stock-remove-button { width: 29px; height: 29px; border: 1px solid rgba(255,142,142,.25); border-radius: 8px; background: rgba(255,142,142,.07); color: #ffb0b0; font-size: 16px; cursor: pointer; }
+    .stock-editor-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .stock-editor-empty { padding: 18px; border: 1px dashed rgba(167,190,210,.2); border-radius: 10px; color: var(--muted); font-size: 11px; text-align: center; }
+
+    .hero { position: relative; display: flex; justify-content: space-between; align-items: end; gap: 24px; padding: 58px 0 34px; }
+    .hero-copy { max-width: 600px; }
+    .eyebrow { display: flex; align-items: center; gap: 9px; margin: 0 0 15px; color: var(--lime); font-size: 10px; font-weight: 850; letter-spacing: .2em; text-transform: uppercase; }
+    .eyebrow::before { width: 24px; height: 1px; background: var(--lime); content: ""; }
+    .hero h1 { margin: 0; font-size: clamp(42px, 7vw, 72px); letter-spacing: -.075em; line-height: .96; }
+    .hero h1 span { color: var(--lime); text-shadow: 0 0 36px rgba(246,199,104,.14); }
+    .hero-copy > p:last-child { max-width: 510px; margin: 19px 0 0; color: #a9b5bf; font-size: 14px; line-height: 1.75; }
+    .hero-stats {
+      min-width: 174px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 16px;
+      background: linear-gradient(145deg, rgba(27, 49, 62, .76), rgba(17, 26, 37, .8));
+      box-shadow: inset 0 1px rgba(255,255,255,.04), 0 15px 34px rgba(0,0,0,.14);
+    }
+    .hero-stats strong { display: block; color: var(--lime); font-size: 30px; letter-spacing: -.05em; }
+    .hero-stats span { color: var(--muted); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+
+    .tabs { display: flex; gap: 5px; width: fit-content; max-width: 100%; margin-bottom: 14px; padding: 5px; overflow-x: auto; border: 1px solid var(--line); border-radius: 13px; background: rgba(13, 21, 30, .84); scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      display: inline-flex; align-items: center; gap: 7px; padding: 10px 14px; border: 0; border-radius: 9px; background: transparent;
+      color: var(--muted); font-size: 11px; font-weight: 750; cursor: pointer; white-space: nowrap;
+    }
+    .tab-count { opacity: .7; font-size: 9px; font-variant-numeric: tabular-nums; }
+    .tab[aria-selected="true"] { background: linear-gradient(135deg, #f8d78e, #edb95b); color: #211b0e; box-shadow: 0 3px 16px rgba(245, 202, 112, .19); }
+    .panel {
+      padding: 22px; border: 1px solid var(--line); border-radius: 19px;
+      background: linear-gradient(145deg, rgba(17, 27, 38, .98), rgba(12, 19, 28, .98));
+      box-shadow: 0 22px 65px rgba(0, 0, 0, .2), inset 0 1px rgba(255,255,255,.025);
+    }
+    [hidden] { display: none !important; }
+
+    .list-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .section-heading { margin: 0; font-size: 19px; letter-spacing: -.035em; }
+    .section-caption { margin: 6px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .search {
+      width: min(100%, 300px); height: 42px; padding: 0 13px; border: 1px solid #34485b;
+      border-radius: 11px; outline: none; background: #0b131c; color: #f6f5eb; font-size: 12px;
+    }
+    .search:focus { border-color: var(--lime); box-shadow: 0 0 0 3px rgba(245, 202, 112, .09); }
+    .filter-row { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 17px; }
+    .filter {
+      padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px;
+      background: #101923; color: #aebaca; font-size: 10px; cursor: pointer;
+    }
+    .filter[aria-pressed="true"] { border-color: rgba(245, 202, 112, .48); background: rgba(245, 202, 112, .1); color: var(--lime); }
+    .fruit-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; }
+    .fruit-card {
+      position: relative; display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px 10px;
+      padding: 10px; overflow: hidden; border: 1px solid rgba(167, 190, 210, .13); border-radius: 15px;
+      background: linear-gradient(145deg, rgba(23, 36, 49, .96), rgba(15, 24, 34, .98));
+      transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+    }
+    .fruit-card:hover { transform: translateY(-3px); border-color: rgba(246, 199, 104, .48); box-shadow: 0 12px 28px rgba(0, 0, 0, .27), 0 0 0 1px rgba(246,199,104,.06); }
+    .fruit-visual {
+      position: relative; display: grid; grid-column: 1 / -1; height: 112px; place-items: center;
+      overflow: hidden; border: 1px solid rgba(255,255,255,.07); border-radius: 11px;
+      background: radial-gradient(ellipse at 50% 80%, rgba(93, 145, 169, .25), transparent 60%), #14212d;
+    }
+    .fruit-visual::before { position: absolute; width: 96px; height: 96px; border: 1px solid rgba(255,255,255,.085); border-radius: 50%; content: ""; }
+    .fruit-visual::after { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,.05), transparent 45%, rgba(255,255,255,.025)); content: ""; pointer-events: none; }
+    .fruit-emoji { position: relative; z-index: 1; display: grid; width: 70px; height: 70px; place-items: center; border: 1px solid rgba(255,255,255,.16); border-radius: 23px 19px 23px 19px; background: linear-gradient(145deg, rgba(255,255,255,.17), rgba(255,255,255,.035)); box-shadow: 0 10px 20px rgba(0,0,0,.24), inset 0 1px rgba(255,255,255,.13); font-size: 36px; transform: rotate(-5deg); }
+    .fruit-image { position: relative; z-index: 1; width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(0 10px 13px rgba(0,0,0,.32)); transition: transform .2s ease; }
+    .fruit-card:hover .fruit-image { transform: scale(1.07) rotate(-3deg); }
+    .visual-badge { position: absolute; z-index: 2; top: 8px; left: 8px; padding: 4px 6px; border: 1px solid rgba(255,255,255,.1); border-radius: 6px; background: rgba(8,14,20,.62); color: #c3ced7; font-size: 8px; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
+    .fruit-card[data-category="Permanent"] .visual-badge { color: #d3baff; }
+    .fruit-card[data-category="Game Pass"] .visual-badge { color: #ffd68f; }
+    .fruit-card[data-category="Variant"] .visual-badge { color: #a9e3ef; }
+    .quick-add {
+      position: absolute; z-index: 3; top: 7px; right: 7px; display: grid; width: 30px; height: 30px;
+      place-items: center; border: 1px solid rgba(246,199,104,.42); border-radius: 10px;
+      background: rgba(9,15,21,.84); color: #ffd783; font-size: 19px; line-height: 1; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,.24); transition: background .15s ease, transform .15s ease, border-color .15s ease;
+    }
+    .quick-add:hover:not(:disabled) { transform: scale(1.08); border-color: rgba(246,199,104,.8); background: rgba(246,199,104,.2); }
+    .quick-add:disabled { cursor: not-allowed; opacity: .48; }
+    .quick-add[data-added="true"] { border-color: rgba(121,223,165,.36); color: #91e8b3; }
+    .quick-add:focus-visible { outline: 2px solid #f6c768; outline-offset: 2px; }
+    .quick-add-count { position: absolute; top: 1px; right: 1px; display: grid; min-width: 13px; height: 13px; place-items: center; padding: 0 2px; border: 1px solid #101923; border-radius: 999px; background: #79dfa5; color: #102015; font-size: 7px; font-weight: 900; }
+    .quick-add-toast { position: fixed; z-index: 10; right: 22px; bottom: 22px; display: flex; align-items: center; gap: 10px; max-width: min(360px, calc(100vw - 32px)); padding: 10px 14px; border: 1px solid rgba(121,223,165,.3); border-radius: 12px; background: rgba(16,28,37,.97); color: #e8f4ec; font-size: 11px; box-shadow: 0 14px 36px rgba(0,0,0,.35); }
+    .quick-add-toast[hidden] { display: none; }
+    .quick-add-toast-icon { display: grid; width: 24px; height: 24px; flex: 0 0 24px; place-items: center; border-radius: 8px; background: rgba(121,223,165,.14); color: #91e8b3; font-weight: 900; }
+    .quick-add-toast[data-state="error"] { border-color: rgba(255,142,142,.34); color: #ffdada; }
+    .quick-add-toast[data-state="error"] .quick-add-toast-icon { background: rgba(255,142,142,.14); color: #ffabab; }
+    .fruit-card[data-type="Beast"] .fruit-image, .fruit-card[data-type="Elemental"] .fruit-image, .fruit-card[data-type="Natural"] .fruit-image { mix-blend-mode: normal; }
+    .fruit-info { min-width: 0; }
+    .fruit-name { overflow: hidden; margin: 0; font-size: 12px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+    .fruit-type { display: inline-block; margin-top: 5px; color: #aab8c6; font-size: 9px; }
+    .fruit-card[data-type="Beast"] .fruit-visual { background: radial-gradient(circle at 50% 65%, rgba(252, 152, 94, .24), transparent 58%), #231d20; }
+    .fruit-card[data-type="Elemental"] .fruit-visual { background: radial-gradient(circle at 50% 65%, rgba(97, 185, 255, .25), transparent 58%), #15222e; }
+    .fruit-card[data-type="Natural"] .fruit-visual { background: radial-gradient(circle at 50% 65%, rgba(182, 128, 255, .24), transparent 58%), #211d2b; }
+    .fruit-card[data-category="Permanent"] .fruit-visual { background: radial-gradient(circle at 50% 65%, rgba(200, 169, 255, .28), transparent 58%), #211d2b; }
+    .fruit-card[data-category="Permanent"] .fruit-value { color: var(--purple); }
+    .fruit-card[data-category="Game Pass"] .fruit-visual { background: radial-gradient(circle at 50% 65%, rgba(255, 204, 112, .26), transparent 58%), #29251c; }
+    .fruit-card[data-category="Game Pass"] .fruit-value { color: #ffcc70; }
+    .fruit-value { align-self: center; padding: 6px 8px; border: 1px solid rgba(245,202,112,.18); border-radius: 8px; background: rgba(245,202,112,.08); color: var(--lime); font-size: 10px; font-weight: 850; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .fruit-card-actions { display: flex; grid-column: 1 / -1; justify-content: space-between; gap: 6px; }
+    .fruit-card-action { min-height: 30px; padding: 0 9px; border: 1px solid rgba(167,190,210,.17); border-radius: 8px; background: rgba(9,15,22,.55); color: #b7c3ce; font-size: 9px; font-weight: 700; cursor: pointer; }
+    .fruit-card-action:hover { border-color: rgba(246,199,104,.4); color: #f6f5eb; }
+    .fruit-card-action[aria-pressed="true"] { border-color: rgba(246,199,104,.45); color: var(--lime); }
+    .fruit-card-action:focus-visible, .profile-button:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+    .favorites-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: -4px 0 16px; }
+    .favorites-toolbar[hidden] { display: none; }
+    .favorites-sort { min-height: 34px; padding: 0 9px; border: 1px solid #34485b; border-radius: 9px; outline: none; background: #0b131c; color: #d3dce4; font-size: 10px; }
+    .favorites-sort:focus { border-color: var(--lime); }
+    .favorites-clear { padding: 8px 10px; border: 1px solid rgba(255,142,142,.28); border-radius: 9px; background: rgba(255,142,142,.06); color: #ffb0b0; font-size: 10px; font-weight: 750; cursor: pointer; }
+    .favorites-clear:hover:not(:disabled) { background: rgba(255,142,142,.13); }
+    .favorites-clear:disabled { opacity: .45; cursor: not-allowed; }
+    .empty-state { grid-column: 1 / -1; padding: 28px; color: var(--muted); text-align: center; font-size: 13px; }
+
+    .trade-heading { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+    .disclaimer { max-width: 310px; color: #a9ad9c; font-size: 10px; line-height: 1.55; text-align: right; }
+    .trade-actions { display: flex; justify-content: flex-end; gap: 8px; margin: -7px 0 12px; }
+    .trade-action-button { padding: 8px 11px; border: 1px solid #34485b; border-radius: 9px; background: rgba(15,24,34,.82); color: #c2cddd; font: inherit; font-size: 10px; font-weight: 750; cursor: pointer; }
+    .trade-action-button:hover:not(:disabled) { border-color: #70869a; color: #f6f5eb; }
+    .trade-action-button:disabled { opacity: .45; cursor: not-allowed; }
+    .trade-action-button:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+    .trade-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .trade-side { position: relative; min-width: 0; padding: 17px; border: 1px solid rgba(167,190,210,.16); border-radius: 16px; background: linear-gradient(145deg, rgba(20,32,44,.98), rgba(13,21,30,.98)); box-shadow: inset 0 1px rgba(255,255,255,.025); }
+    .trade-side.picker-open { z-index: 5; }
+    .trade-side::before { position: absolute; top: 0; left: 18px; right: 18px; height: 1px; background: linear-gradient(90deg, transparent, rgba(246,199,104,.45), transparent); content: ""; }
+    .side-title { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 15px; }
+    .side-title > div:last-child { display: flex; align-items: center; gap: 9px; }
+    .side-title-copy { display: flex; align-items: center; gap: 11px; }
+    .side-emblem { display: grid; width: 37px; height: 37px; place-items: center; border: 1px solid rgba(246,199,104,.24); border-radius: 12px; background: linear-gradient(145deg, rgba(246,199,104,.15), rgba(255,255,255,.025)); color: var(--lime); font-size: 18px; }
+    .trade-side[aria-labelledby="them-title"] .side-emblem { color: #9bd8f2; border-color: rgba(119,193,223,.24); background: linear-gradient(145deg, rgba(70,148,183,.17), rgba(255,255,255,.025)); }
+    .side-heading-copy { display: grid; gap: 4px; }
+    .side-title h3 { margin: 0; font-size: 13px; }
+    .side-subtitle { color: var(--muted); font-size: 9px; }
+    .clear-button { padding: 4px 7px; border: 1px solid #34485b; border-radius: 7px; background: transparent; color: #a4b1bf; font-size: 9px; cursor: pointer; }
+    .clear-button:hover { border-color: #73889a; color: #f6f5eb; }
+    .side-total { color: var(--lime); font-size: 14px; font-weight: 850; font-variant-numeric: tabular-nums; }
+    .add-fruit { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+    .item-picker { position: relative; min-width: 0; }
+    .item-search-wrap { position: relative; }
+    .item-search {
+      width: 100%; min-width: 0; height: 42px; padding: 0 35px 0 12px; border: 1px solid #34485b; border-radius: 10px;
+      outline: none; background: #0d151e; color: #f6f5eb; font: inherit; font-size: 11px;
+    }
+    .item-search::placeholder { color: #8493a1; }
+    .item-search:focus { border-color: var(--lime); box-shadow: 0 0 0 3px rgba(245,202,112,.09); }
+    .item-search-icon { position: absolute; top: 50%; right: 12px; color: #91a1af; font-size: 17px; transform: translateY(-53%); pointer-events: none; }
+    .picker-options {
+      position: absolute; z-index: 12; top: calc(100% + 7px); left: 0; right: 0; max-height: 315px; padding: 6px;
+      overflow-y: auto; overscroll-behavior: contain; border: 1px solid rgba(167,190,210,.22); border-radius: 13px;
+      background: rgba(11,18,26,.99); box-shadow: 0 18px 42px rgba(0,0,0,.54); scrollbar-color: #43586b #111b26; scrollbar-width: thin;
+    }
+    .picker-options[hidden] { display: none; }
+    .picker-group-label { position: sticky; top: -6px; z-index: 1; margin: -1px -1px 5px; padding: 8px 8px 6px; border-bottom: 1px solid rgba(167,190,210,.1); background: rgba(11,18,26,.97); color: #93a2af; font-size: 8px; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; }
+    .picker-option {
+      display: flex; width: 100%; align-items: center; gap: 9px; margin: 0 0 4px; padding: 6px 8px;
+      border: 1px solid transparent; border-radius: 10px; background: transparent; color: #e8edf1; text-align: left; cursor: pointer;
+    }
+    .picker-option:hover, .picker-option[aria-selected="true"] { border-color: rgba(246,199,104,.28); background: rgba(246,199,104,.08); }
+    .picker-option-icon { display: grid; flex: 0 0 38px; width: 38px; height: 38px; place-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.09); border-radius: 10px; background: radial-gradient(circle, rgba(105,136,157,.2), rgba(12,20,29,.7)); object-fit: contain; padding: 2px; font-size: 19px; }
+    .picker-option-copy { display: grid; min-width: 0; flex: 1; gap: 4px; }
+    .picker-option-name { overflow: hidden; font-size: 10px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+    .picker-option-type { color: var(--muted); font-size: 8px; }
+    .picker-option-value { flex: 0 0 auto; color: var(--lime); font-size: 9px; font-weight: 800; }
+    .picker-empty { padding: 18px 10px; color: var(--muted); font-size: 10px; text-align: center; }
+    .add-button {
+      min-width: 88px; padding: 0 13px; border: 0; border-radius: 10px;
+      background: linear-gradient(135deg, #f8d78e, #edb95b); color: #211b0e; font-size: 11px; font-weight: 850; cursor: pointer;
+    }
+    .add-button:hover:not(:disabled) { filter: brightness(1.06); transform: translateY(-1px); }
+    .add-button:disabled { opacity: .45; cursor: not-allowed; }
+    .picker-preview { display: flex; align-items: center; gap: 9px; min-width: 0; margin-top: 10px; padding: 8px 10px; border: 1px solid rgba(167,190,210,.1); border-radius: 11px; background: rgba(8,14,20,.36); }
+    .picker-icon { display: grid; flex: 0 0 36px; width: 36px; height: 36px; place-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.1); border-radius: 10px; background: radial-gradient(circle, rgba(105,136,157,.24), rgba(12,20,29,.7)); object-fit: contain; padding: 3px; font-size: 19px; }
+    .picker-copy { display: grid; min-width: 0; gap: 3px; }
+    .picker-name { overflow: hidden; color: #e8edf1; font-size: 10px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+    .picker-type { color: var(--muted); font-size: 9px; }
+    .picker-value { margin-left: auto; color: var(--lime); font-size: 10px; font-weight: 800; white-space: nowrap; }
+    .slot-caption { margin: 15px 0 8px; color: #8695a3; font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .trade-items { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; min-height: 176px; align-content: start; }
+    .trade-item, .trade-slot-empty { position: relative; display: flex; min-width: 0; min-height: 66px; align-items: center; gap: 8px; padding: 7px; overflow: hidden; border: 1px solid rgba(167,190,210,.14); border-radius: 12px; background: linear-gradient(145deg, rgba(25,39,52,.95), rgba(16,26,37,.98)); }
+    .trade-item { transition: border-color .16s ease, transform .16s ease; }
+    .trade-item:hover { transform: translateY(-2px); border-color: rgba(246,199,104,.38); }
+    .trade-item[data-category="Permanent"] { border-color: rgba(197,165,255,.23); }
+    .trade-item[data-category="Game Pass"] { border-color: rgba(255,204,112,.25); }
+    .trade-item[data-category="Variant"] { border-color: rgba(121,205,224,.3); }
+    .trade-item-emoji { display: grid; flex: 0 0 36px; width: 36px; height: 36px; place-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.1); border-radius: 10px; background: radial-gradient(circle, rgba(105,136,157,.24), rgba(12,20,29,.7)); object-fit: contain; padding: 2px; font-size: 18px; }
+    .trade-item-copy { display: grid; min-width: 0; flex: 1; gap: 3px; }
+    .trade-item-name { overflow: hidden; font-size: 9px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+    .trade-item-category { color: var(--muted); font-size: 7px; }
+    .trade-item-value { color: var(--lime); font-size: 9px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .remove-button { position: absolute; top: 5px; right: 5px; display: grid; width: 22px; height: 22px; place-items: center; border: 1px solid transparent; border-radius: 7px; background: rgba(7,12,17,.4); color: #9aa8b4; cursor: pointer; }
+    .remove-button:hover { border-color: rgba(255,142,142,.3); background: rgba(255,142,142,.12); color: #ffb0b0; }
+    .trade-slot-empty { justify-content: center; border-style: dashed; background: rgba(9,15,22,.24); color: #647381; font-size: 9px; }
+    .trade-slot-empty .slot-plus { display: grid; flex: 0 0 21px; width: 21px; height: 21px; place-items: center; border: 1px solid rgba(167,190,210,.17); border-radius: 50%; font-size: 13px; }
+    .trade-result { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 14px; margin-top: 15px; padding: 15px 17px 13px; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(120deg, rgba(27,42,55,.8), rgba(14,22,32,.95)); }
+    .result-value { color: #e3e7e9; font-size: 15px; font-weight: 850; font-variant-numeric: tabular-nums; }
+    .result-value:last-child { text-align: right; }
+    .trade-result > #them-result { text-align: right; }
+    .result-value span { display: block; margin-top: 4px; color: var(--muted); font-size: 9px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+    .result-status { padding: 8px 12px; border: 1px solid #34485b; border-radius: 999px; color: #c2cddd; font-size: 10px; font-weight: 800; text-align: center; white-space: nowrap; }
+    .result-status.good { border-color: rgba(245, 202, 112, .38); background: rgba(245, 202, 112, .1); color: var(--lime); }
+    .result-status.bad { border-color: rgba(255, 142, 142, .35); background: rgba(255, 142, 142, .09); color: #ff9a9a; }
+    .result-difference { grid-column: 1 / -1; margin: -3px 0 0; color: #a9b5bf; font-size: 10px; text-align: center; }
+    .result-difference strong { color: #e8edf1; font-variant-numeric: tabular-nums; }
+    .balance-track { position: relative; grid-column: 1 / -1; height: 5px; overflow: hidden; border-radius: 999px; background: linear-gradient(90deg, rgba(246,199,104,.22), rgba(147,171,192,.22) 50%, rgba(108,186,219,.22)); }
+    .balance-fill { position: absolute; top: 0; bottom: 0; left: 0; width: 50%; border-radius: inherit; background: linear-gradient(90deg, #f5c769, #edb95b); transition: width .25s ease; }
+    .balance-track::after { position: absolute; top: -2px; bottom: -2px; left: 50%; width: 1px; background: rgba(239,245,248,.58); content: ""; }
+    .trade-note { margin: 12px 0 0; color: #858a79; font-size: 10px; line-height: 1.6; }
+    .footnote { margin: 14px 2px 0; color: #858a79; font-size: 10px; line-height: 1.6; }
+    .footer { margin-top: 20px; color: #737867; font-size: 10px; line-height: 1.7; text-align: center; }
+    .footer a { color: #9eacb8; text-decoration-color: rgba(158,172,184,.4); text-underline-offset: 3px; }
+
+    @media (max-width: 850px) {
+      .fruit-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .stock-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 620px) {
+      .app { width: min(100% - 24px, 520px); padding-top: 18px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .topbar-actions { justify-content: flex-start; }
+      .hero { display: block; padding: 42px 0 23px; }
+      .hero-stats { display: inline-block; min-width: 138px; margin-top: 20px; }
+      .fruit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .panel { padding: 14px; }
+      .tabs { width: 100%; }
+      .list-toolbar { align-items: stretch; flex-direction: column; }
+      .search { width: 100%; }
+      .trade-columns { grid-template-columns: 1fr; }
+      .trade-heading { flex-direction: column; }
+      .disclaimer { max-width: none; text-align: left; }
+      .trade-actions { margin-top: 0; }
+      .trade-items { min-height: 0; }
+      .stock-header { align-items: stretch; flex-direction: column; }
+      .stock-status { text-align: left; }
+      .stock-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 390px) {
+      .fruit-grid { grid-template-columns: 1fr; }
+      .fruit-card { padding: 10px 12px; }
+      .updated-pill { font-size: 9px; }
+      .trade-result { gap: 7px; padding: 12px 9px; }
+      .result-status { padding-inline: 8px; font-size: 9px; }
+      .trade-side { padding: 12px; }
+      .trade-item { gap: 7px; padding: 7px; }
+      .trade-item-emoji { flex-basis: 40px; width: 40px; height: 40px; }
+      .side-title-copy { gap: 8px; }
+      .side-title > div:last-child { gap: 5px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <button class="profile-avatar-button" id="profile-avatar-open" type="button" aria-label="Open profile">
+          <span class="profile-avatar-icon" id="profile-avatar-icon" aria-hidden="true">🍈</span>
+          <span class="profile-avatar-copy">
+            <span class="profile-avatar-title">Your profile</span>
+            <span class="profile-avatar-description" id="profile-avatar-description">Sign in or create an account</span>
+          </span>
+          <span class="profile-avatar-arrow" aria-hidden="true">↗</span>
+        </button>
+        <div>
+          <p class="brand-name">FruitFinder</p>
+          <p class="brand-subtitle">Blox Fruits trade desk</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <div class="updated-pill">Market estimates · checked 28 Oct 2026</div>
+        <form class="profile-form" id="profile-form">
+          <label class="sr-only" for="profile-name">Account name</label>
+          <input class="profile-input" id="profile-name" type="text" minlength="2" maxlength="24" placeholder="Account name" autocomplete="username" required>
+          <label class="sr-only" for="profile-password">Password</label>
+          <input class="profile-input profile-password" id="profile-password" type="password" minlength="8" maxlength="128" placeholder="Password (8+ chars)" autocomplete="current-password" required>
+          <label class="sr-only" for="profile-password-confirm">Confirm password</label>
+          <input class="profile-input profile-password" id="profile-password-confirm" type="password" minlength="8" maxlength="128" placeholder="Confirm password" autocomplete="new-password" hidden>
+          <button class="profile-button" id="profile-submit" type="submit">Sign in</button>
+          <button class="profile-mode-button" id="profile-mode-toggle" type="button">Create profile</button>
+          <span class="profile-note">Local to this browser only. Don’t reuse a password from another account.</span>
+        </form>
+        <span class="profile-status" id="profile-status" hidden></span>
+        <button class="profile-button" id="profile-signout" type="button" hidden>Sign out</button>
+      </div>
+    </header>
+
+    <dialog class="profile-dialog" id="profile-dialog" aria-labelledby="profile-dialog-title">
+      <div class="profile-dialog-inner">
+        <div class="profile-dialog-header">
+          <div>
+            <h2 class="profile-dialog-title" id="profile-dialog-title">Your profile</h2>
+            <p class="profile-dialog-caption">Personalize your FruitFinder account.</p>
+          </div>
+          <button class="profile-dialog-close" id="profile-dialog-close" type="button" aria-label="Close profile">×</button>
+        </div>
+        <div id="profile-dialog-account" hidden>
+          <div class="profile-card">
+            <div class="profile-dialog-avatar" id="profile-dialog-avatar" aria-hidden="true">🍈</div>
+            <div>
+              <p class="profile-card-name" id="profile-dialog-name"></p>
+              <p class="profile-card-label">FruitFinder local profile</p>
+            </div>
+          </div>
+          <div class="profile-settings">
+            <section class="profile-setting">
+              <h3>Profile picture</h3>
+              <p>Choose a fruit-inspired avatar.</p>
+              <form class="profile-setting-row" id="profile-avatar-form">
+                <label class="sr-only" for="profile-avatar-select">Choose profile picture</label>
+                <select class="profile-avatar-select" id="profile-avatar-select">
+                  <option value="West Dragon">West Dragon</option>
+                  <option value="East Dragon">East Dragon</option>
+                  <option value="Kitsune">Kitsune</option>
+                  <option value="Buddha">Buddha</option>
+                  <option value="Control">Control</option>
+                  <option value="Dough">Dough</option>
+                  <option value="Lightning">Lightning</option>
+                  <option value="Magnet">Magnet</option>
+                  <option value="Yeti">Yeti</option>
+                  <option value="Magma">Magma</option>
+                  <option value="Eagle">Eagle</option>
+                  <option value="Spirit">Spirit</option>
+                  <option value="Portal">Portal</option>
+                </select>
+                <button class="profile-button" type="submit">Save picture</button>
+              </form>
+            </section>
+            <section class="profile-setting">
+              <h3>Account name</h3>
+              <p>Change the name you use to sign in.</p>
+              <form class="profile-setting-form" id="profile-change-name-form">
+                <label class="sr-only" for="profile-new-name">New account name</label>
+                <div class="profile-setting-row">
+                  <input class="profile-setting-input" id="profile-new-name" type="text" minlength="2" maxlength="24" autocomplete="username" placeholder="New name" required>
+                  <button class="profile-button" type="submit">Change name</button>
+                </div>
+                <p class="profile-setting-message" id="profile-name-message" aria-live="polite"></p>
+              </form>
+            </section>
+            <section class="profile-setting">
+              <h3>Password</h3>
+              <p>Verify your current password before choosing a new one.</p>
+              <form class="profile-setting-form" id="profile-change-password-form">
+                <label class="sr-only" for="profile-current-password">Current password</label>
+                <input class="profile-setting-input" id="profile-current-password" type="password" minlength="8" maxlength="128" autocomplete="current-password" placeholder="Current password" required>
+                <label class="sr-only" for="profile-new-password">New password</label>
+                <input class="profile-setting-input" id="profile-new-password" type="password" minlength="8" maxlength="128" autocomplete="new-password" placeholder="New password (8+ characters)" required>
+                <label class="sr-only" for="profile-confirm-password">Confirm new password</label>
+                <input class="profile-setting-input" id="profile-confirm-password" type="password" minlength="8" maxlength="128" autocomplete="new-password" placeholder="Confirm new password" required>
+                <button class="profile-button" type="submit">Change password</button>
+                <p class="profile-setting-message" id="profile-password-message" aria-live="polite"></p>
+              </form>
+            </section>
+          </div>
+          <p class="profile-dialog-note">This profile is stored only in this browser, not on a server. Don’t reuse a password from another account.</p>
+        </div>
+        <div class="profile-guest" id="profile-dialog-guest" hidden>
+          Sign in or create a local profile using the fields in the top-right corner to manage your avatar, name, and password here.
+        </div>
+      </div>
+    </dialog>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">The grand line marketplace</p>
+        <h1>Make every trade<br><span>count.</span></h1>
+        <p>Explore the fruit collection, check community value estimates, and build a trade before you take it to sea.</p>
+      </div>
+      <div class="hero-stats"><strong id="fruit-count">0</strong><span>tradeable items</span></div>
+    </section>
+
+    <nav class="tabs" role="tablist" aria-label="Trade hub sections">
+      <button class="tab" id="fruit-tab" type="button" role="tab" data-section="Fruit" aria-selected="true" aria-controls="values-panel">🍈 Fruits <span class="tab-count" id="fruit-tab-count"></span></button>
+      <button class="tab" id="variants-tab" type="button" role="tab" data-section="Variant" aria-selected="false" aria-controls="values-panel">✧ Fruit variants <span class="tab-count" id="variants-tab-count"></span></button>
+      <button class="tab" id="permanent-tab" type="button" role="tab" data-section="Permanent" aria-selected="false" aria-controls="values-panel">✦ Perms <span class="tab-count" id="permanent-tab-count"></span></button>
+      <button class="tab" id="passes-tab" type="button" role="tab" data-section="Game Pass" aria-selected="false" aria-controls="values-panel">♢ Game passes <span class="tab-count" id="passes-tab-count"></span></button>
+      <button class="tab" id="all-tab" type="button" role="tab" data-section="All" aria-selected="false" aria-controls="values-panel">All items</button>
+      <button class="tab" id="stock-tab" type="button" role="tab" data-section="Stock" aria-selected="false" aria-controls="stock-panel">🛒 Active Stock <span class="tab-count" id="stock-tab-count"></span></button>
+      <button class="tab" id="favorites-tab" type="button" role="tab" data-section="Favorites" aria-selected="false" aria-controls="values-panel">♥ Favorites <span class="tab-count" id="favorites-tab-count"></span></button>
+      <button class="tab" id="ranking-tab" type="button" role="tab" data-section="Ranking" aria-selected="false" aria-controls="values-panel">↗ Top values</button>
+      <button class="tab" id="history-tab" type="button" role="tab" data-section="History" aria-selected="false" aria-controls="values-panel">◷ Recent <span class="tab-count" id="history-tab-count"></span></button>
+      <button class="tab" id="trade-tab" type="button" role="tab" aria-selected="false" aria-controls="trade-panel">⇄ Trade calculator</button>
+    </nav>
+
+    <section class="panel" id="values-panel" role="tabpanel" aria-labelledby="fruit-tab">
+      <div class="list-toolbar">
+        <div>
+          <h2 class="section-heading" id="catalog-title">Fruit inventory</h2>
+          <p class="section-caption" id="catalog-caption">Browse the fruit collection and compare estimated trade values.</p>
+        </div>
+        <label>
+          <span class="sr-only" hidden>Search tradeable items</span>
+          <input class="search" id="search" type="search" placeholder="Search fruits and passes..." autocomplete="off">
+        </label>
+      </div>
+      <div class="filter-row" id="fruit-type-filters" role="group" aria-label="Filter fruits by type">
+        <button class="filter" type="button" data-filter="All" aria-pressed="true">All types</button>
+        <button class="filter" type="button" data-filter="Beast" aria-pressed="false">Beast</button>
+        <button class="filter" type="button" data-filter="Elemental" aria-pressed="false">Elemental</button>
+        <button class="filter" type="button" data-filter="Natural" aria-pressed="false">Natural</button>
+      </div>
+      <div class="favorites-toolbar" id="favorites-toolbar" hidden>
+        <label>
+          <span class="sr-only" hidden>Sort favorite fruits</span>
+          <select class="favorites-sort" id="favorites-sort" aria-label="Sort favorite fruits">
+            <option value="value-desc">Highest value</option>
+            <option value="value-asc">Lowest value</option>
+            <option value="name-asc">Name A–Z</option>
+            <option value="recently-added">Recently added</option>
+          </select>
+        </label>
+        <button class="favorites-clear" id="favorites-clear" type="button">Clear favorites</button>
+      </div>
+      <div class="fruit-grid" id="fruit-grid" aria-live="polite"></div>
+      <p class="footnote">Favorites and recent checks are saved in this browser. Profiles are local to this browser, not server-secured accounts; passwords are stored as salted hashes, but this is not suitable for sensitive or reused passwords. Community trade-value estimates, not official prices or guaranteed offers. Values can change with demand and updates; always confirm a trade before accepting. Source: <a href="https://bloxfruitsvalues.com/values" target="_blank" rel="noreferrer">Blox Fruits Values</a>, checked 28 Oct 2026.</p>
+    </section>
+
+    <section class="panel" id="stock-panel" role="tabpanel" aria-labelledby="stock-tab" hidden>
+      <div class="stock-header">
+        <div>
+          <p class="stock-label">FruitFinder stock board</p>
+          <h2 class="section-heading" id="stock-title">Dealer stock</h2>
+          <p class="section-caption" id="stock-caption">Current Dealer fruits, refreshed from the live stock feed.</p>
+        </div>
+        <div class="stock-head-actions">
+          <div id="live-stock-actions">
+            <p class="stock-status" id="live-stock-updated" role="status" aria-live="polite">Loading live stock…</p>
+            <button class="profile-button" id="stock-refresh" type="button">↻ Refresh stock</button>
+          </div>
+          <div id="manual-stock-actions" hidden>
+            <p class="stock-status" id="stock-updated">No stock saved yet</p>
+            <button class="profile-button stock-edit-button" id="stock-edit" type="button">✎ Edit stock</button>
+          </div>
+        </div>
+      </div>
+      <div class="stock-view-tabs" role="tablist" aria-label="Choose live stock or your manual list">
+        <button class="stock-view-tab" id="live-stock-view-tab" type="button" role="tab" aria-selected="true">● Live game stock</button>
+        <button class="stock-view-tab" id="manual-stock-view-tab" type="button" role="tab" aria-selected="false">✎ My manual list</button>
+      </div>
+      <div class="stock-live-content" id="live-stock-content">
+        <div class="stock-tabs" id="live-stock-location-tabs" role="tablist" aria-label="Choose live stock location">
+          <button class="stock-tab" id="live-dealer-stock-tab" type="button" role="tab" aria-selected="true">🛒 Dealer</button>
+          <button class="stock-tab" id="live-mirage-stock-tab" type="button" role="tab" aria-selected="false">🌙 Mirage</button>
+        </div>
+        <div class="stock-grid" id="live-stock-grid" aria-live="polite"><p class="empty-state">Loading current stock…</p></div>
+        <p class="stock-status" id="live-stock-reset-times" aria-live="polite"></p>
+        <p class="stock-board-note">FruitFinder’s own stock board, automatically refreshed from the live stock feed. Dealer stock rotates about every 4 hours; Mirage about every 2 hours.</p>
+        <p class="stock-live-note">Live data source: <a href="https://fruityblox.com/stock" target="_blank" rel="noopener noreferrer">FruityBlox</a>. Stock is displayed here in FruitFinder’s own design.</p>
+      </div>
+      <div class="stock-manual-content" id="manual-stock-content" hidden>
+        <p class="stock-board-note">Your manual Dealer and Mirage lists are saved in this browser and are separate from live game stock.</p>
+        <div class="stock-tabs" id="manual-stock-location-tabs" role="tablist" aria-label="Choose manual stock location">
+          <button class="stock-tab" id="dealer-stock-tab" type="button" role="tab" aria-selected="true">🛒 Dealer</button>
+          <button class="stock-tab" id="mirage-stock-tab" type="button" role="tab" aria-selected="false">🌙 Mirage</button>
+        </div>
+        <div class="stock-grid" id="stock-grid" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <dialog class="profile-dialog stock-editor-dialog" id="stock-editor-dialog" aria-labelledby="stock-editor-title">
+      <div class="profile-dialog-inner">
+        <div class="profile-dialog-header">
+          <div>
+            <h2 class="profile-dialog-title" id="stock-editor-title">Edit Dealer stock</h2>
+            <p class="profile-dialog-caption">Choose the fruits currently available and save the list.</p>
+          </div>
+          <button class="profile-dialog-close" id="stock-editor-close" type="button" aria-label="Close stock editor">×</button>
+        </div>
+        <form class="stock-picker-row" id="stock-add-form">
+          <label class="sr-only" for="stock-fruit-input">Search and add a fruit</label>
+          <input class="stock-fruit-input" id="stock-fruit-input" type="text" list="stock-fruit-options" placeholder="Type a fruit name..." autocomplete="off">
+          <datalist id="stock-fruit-options"></datalist>
+          <button class="profile-button" type="submit">Add fruit</button>
+        </form>
+        <div class="stock-draft-list" id="stock-draft-list"></div>
+        <div class="stock-editor-actions">
+          <button class="trade-action-button" id="stock-editor-cancel" type="button">Cancel</button>
+          <button class="profile-button" id="stock-editor-save" type="button">Save stock</button>
+        </div>
+      </div>
+    </dialog>
+
+    <section class="panel" id="trade-panel" role="tabpanel" aria-labelledby="trade-tab" hidden>
+      <div class="trade-heading">
+        <div>
+          <h2 class="section-heading">Trade calculator</h2>
+          <p class="section-caption">Add up to four trade items on each side and compare the estimate.</p>
+        </div>
+        <div class="disclaimer">A value comparison is only a guide. Demand, game updates, and what you want matter too.</div>
+      </div>
+      <div class="trade-actions" aria-label="Trade actions">
+        <button class="trade-action-button" id="swap-offers" type="button" aria-label="Swap your offer and their offer">⇄ Swap offers</button>
+        <button class="trade-action-button" id="clear-trade" type="button" disabled>Clear both</button>
+      </div>
+      <div class="trade-columns">
+        <section class="trade-side" aria-labelledby="you-title">
+          <div class="side-title">
+            <div class="side-title-copy">
+              <span class="side-emblem" aria-hidden="true">⚓</span>
+              <span class="side-heading-copy"><h3 id="you-title">Your offer</h3><span class="side-subtitle">Items you give</span></span>
+            </div>
+            <div><span class="side-total" id="you-total">0M</span><button class="clear-button" id="you-clear" type="button">Clear</button></div>
+          </div>
+          <div class="add-fruit">
+            <div class="item-picker" id="you-picker">
+              <div class="item-search-wrap">
+                <input class="item-search" id="you-search" type="search" role="combobox" aria-label="Search items for your offer" aria-autocomplete="list" aria-expanded="false" aria-controls="you-options" placeholder="Search fruits, perms, passes..." autocomplete="off">
+                <span class="item-search-icon" aria-hidden="true">⌕</span>
+              </div>
+              <div class="picker-options" id="you-options" role="listbox" aria-label="Items for your offer" hidden></div>
+            </div>
+            <button class="add-button" id="you-add" type="button">Add item</button>
+          </div>
+          <div class="picker-preview" id="you-preview" aria-live="polite"></div>
+          <p class="slot-caption">Trade slots <span id="you-slot-count">0 / 4</span></p>
+          <div class="trade-items" id="you-items" aria-live="polite"></div>
+        </section>
+        <section class="trade-side" aria-labelledby="them-title">
+          <div class="side-title">
+            <div class="side-title-copy">
+              <span class="side-emblem" aria-hidden="true">✦</span>
+              <span class="side-heading-copy"><h3 id="them-title">Their offer</h3><span class="side-subtitle">Items they give</span></span>
+            </div>
+            <div><span class="side-total" id="them-total">0M</span><button class="clear-button" id="them-clear" type="button">Clear</button></div>
+          </div>
+          <div class="add-fruit">
+            <div class="item-picker" id="them-picker">
+              <div class="item-search-wrap">
+                <input class="item-search" id="them-search" type="search" role="combobox" aria-label="Search items for their offer" aria-autocomplete="list" aria-expanded="false" aria-controls="them-options" placeholder="Search fruits, perms, passes..." autocomplete="off">
+                <span class="item-search-icon" aria-hidden="true">⌕</span>
+              </div>
+              <div class="picker-options" id="them-options" role="listbox" aria-label="Items for their offer" hidden></div>
+            </div>
+            <button class="add-button" id="them-add" type="button">Add item</button>
+          </div>
+          <div class="picker-preview" id="them-preview" aria-live="polite"></div>
+          <p class="slot-caption">Trade slots <span id="them-slot-count">0 / 4</span></p>
+          <div class="trade-items" id="them-items" aria-live="polite"></div>
+        </section>
+      </div>
+      <div class="trade-result" aria-live="polite">
+        <div class="result-value" id="you-result">0M<span>Your side</span></div>
+        <div class="result-status" id="trade-status">Add items to compare</div>
+        <div class="result-value" id="them-result">0M<span>Their side</span></div>
+        <p class="result-difference" id="trade-difference">Difference: <strong>0M</strong></p>
+        <div class="balance-track" id="balance-track" role="progressbar" aria-label="Your share of combined trade value" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+          <span class="balance-fill" id="balance-fill"></span>
+        </div>
+      </div>
+      <p class="trade-note">“Win” and “lose” compare only the estimates shown here, not a guaranteed market outcome. You can remove an item with the × button.</p>
+    </section>
+
+    <div class="quick-add-toast" id="quick-add-toast" role="status" aria-live="polite" hidden>
+      <span class="quick-add-toast-icon" aria-hidden="true">✓</span>
+      <span id="quick-add-message"></span>
+    </div>
+
+    <footer class="footer">
+      Fan-made companion · Not affiliated with or endorsed by the game creators.<br>
+      Artwork: <a href="https://github.com/Bensams/bloxpedia" target="_blank" rel="noreferrer">Bloxpedia community assets</a> ·
+      <a href="https://github.com/wailsba22/Bloxfr" target="_blank" rel="noreferrer">Bloxfr fruit icons</a> ·
+      Market estimates: <a href="https://bloxfruitsvalues.com/values" target="_blank" rel="noreferrer">Blox Fruits Values</a>.
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      const fruits = [
+        { name: "West Dragon", type: "Beast", emoji: "🐉", value: 3540 },
+        { name: "East Dragon", type: "Beast", emoji: "🐉", value: 2970 },
+        { name: "Kitsune", type: "Beast", emoji: "🦊", value: 570 },
+        { name: "Magnet", type: "Beast", emoji: "🧲", value: 510 },
+        { name: "Tiger", type: "Beast", emoji: "🐅", value: 100 },
+        { name: "Yeti", type: "Beast", emoji: "❄️", value: 90 },
+        { name: "Gas", type: "Elemental", emoji: "☁️", value: 60 },
+        { name: "Control", type: "Natural", emoji: "🌀", value: 120 },
+        { name: "Venom", type: "Natural", emoji: "🐍", value: 25 },
+        { name: "Dough", type: "Elemental", emoji: "🍩", value: 30 },
+        { name: "Lightning", type: "Elemental", emoji: "⚡", value: 20 },
+        { name: "T-Rex", type: "Beast", emoji: "🦖", value: 20 },
+        { name: "Pain", type: "Natural", emoji: "💥", value: 10 },
+        { name: "Gravity", type: "Natural", emoji: "🪐", value: 10 },
+        { name: "Mammoth", type: "Beast", emoji: "🦣", value: 10 },
+        { name: "Spirit", type: "Natural", emoji: "👻", value: 10 },
+        { name: "Portal", type: "Natural", emoji: "🌀", value: 10 },
+        { name: "Buddha", type: "Beast", emoji: "✨", value: 10 },
+        { name: "Shadow", type: "Natural", emoji: "🌑", value: 6.5 },
+        { name: "Blizzard", type: "Elemental", emoji: "🌨️", value: 5 },
+        { name: "Creation", type: "Natural", emoji: "🌌", value: 2.5 },
+        { name: "Phoenix", type: "Beast", emoji: "🐦", value: 2.75 },
+        { name: "Sound", type: "Natural", emoji: "🎵", value: 2.5 },
+        { name: "Spider", type: "Natural", emoji: "🕸️", value: 1.5 },
+        { name: "Love", type: "Natural", emoji: "💗", value: 1.5 },
+        { name: "Magma", type: "Elemental", emoji: "🌋", value: 1.15 },
+        { name: "Quake", type: "Natural", emoji: "🌍", value: 1 },
+        { name: "Diamond", type: "Natural", emoji: "💎", value: 1 },
+        { name: "Light", type: "Elemental", emoji: "💡", value: 0.8 },
+        { name: "Ghost", type: "Natural", emoji: "👻", value: 0.8 },
+        { name: "Eagle", type: "Beast", emoji: "🦅", value: 0.8 },
+        { name: "Rubber", type: "Natural", emoji: "🎈", value: 0.7 },
+        { name: "Ice", type: "Elemental", emoji: "🧊", value: 0.55 },
+        { name: "Sand", type: "Elemental", emoji: "🏜️", value: 0.42 },
+        { name: "Dark", type: "Elemental", emoji: "🌘", value: 0.4 },
+        { name: "Flame", type: "Elemental", emoji: "🔥", value: 0.25 },
+        { name: "Spike", type: "Natural", emoji: "🌵", value: 0.18 },
+        { name: "Smoke", type: "Elemental", emoji: "💨", value: 0.1 },
+        { name: "Bomb", type: "Natural", emoji: "💣", value: 0.08 },
+        { name: "Spring", type: "Natural", emoji: "🌀", value: 0.06 },
+        { name: "Blade", type: "Natural", emoji: "🗡️", value: 0.05 },
+        { name: "Spin", type: "Natural", emoji: "🌪️", value: 0.0075 },
+        { name: "Rocket", type: "Natural", emoji: "🚀", value: 0.005 }
+      ];
+
+      const fruitVariants = [
+        { name: "Galaxy Empyrean Kitsune", emoji: "🦊", value: 10110, image: "https://i.postimg.cc/k5JRY7vf/latest-cb-20251226164613.webp" },
+        { name: "Crimson Kitsune", emoji: "🦊", value: 7800, image: "https://i.postimg.cc/dtg9fZh5/Crimson-Kitsune.png" },
+        { name: "Parrot", emoji: "🦜", value: 7800, image: "https://i.postimg.cc/dt3ZNLLY/Parrot.png" },
+        { name: "Ember West Dragon", emoji: "🐉", value: 7620, image: "https://i.postimg.cc/Qtn7Wv59/latest-cb-20251226164628.webp" },
+        { name: "Vibe (Frame Break)", emoji: "✨", value: 11700, image: "https://i.postimg.cc/Bb53Pz8P/1000-cb-20260907132311.webp" },
+        { name: "Meme-Meme", emoji: "🍈", value: 6990, image: "https://bloxfruitsvalues.com/api/bloxfruits/item-image/59" },
+        { name: "Purple Lightning", emoji: "⚡", value: 5100, image: "https://i.postimg.cc/d0FsYGYD/Purple-Lightning.png" },
+        { name: "Divine Portal", emoji: "🌀", value: 2730, image: "https://i.postimg.cc/htF9sFwc/latest-cb-20251225222313.webp" },
+        { name: "Arcsteel Magnet", emoji: "🧲", value: 2610, image: "https://i.postimg.cc/6pf7xHYL/1000-cb-20260906113126.webp" },
+        { name: "Red Lightning", emoji: "⚡", value: 2400, image: "https://i.postimg.cc/s2DmjTkH/Red-Lightning.png" },
+        { name: "Runic Fiend", emoji: "❄️", value: 1740, image: "https://i.postimg.cc/SxfXbZD6/latest-cb-20260907125448.webp" },
+        { name: "Werewolf", emoji: "🐺", value: 1290, image: "https://i.postimg.cc/mr2jLmv5/Werewolf.png" },
+        { name: "Rose Quartz Diamond", emoji: "💎", value: 240, image: "https://i.postimg.cc/02PQqRHR/Rose-Quartz.webp" },
+        { name: "Eagle Matrix", emoji: "🦅", value: 390, image: "https://i.postimg.cc/446xX4qD/Eagle-Matrix.png" },
+        { name: "Green Lightning", emoji: "⚡", value: 270, image: "https://i.postimg.cc/MKcKbW5Z/Green-Lightning.png" },
+        { name: "Eagle Requiem", emoji: "🦅", value: 230, image: "https://i.postimg.cc/7P3ZqPjr/Eagle-Requiem.png" },
+        { name: "Emerald Diamond", emoji: "💎", value: 180, image: "https://i.postimg.cc/8zCzjdSZ/Emerald.webp" },
+        { name: "Yellow Lightning", emoji: "⚡", value: 150, image: "https://i.postimg.cc/cLwx2XPV/Yellow-Lightning.png" },
+        { name: "Ruby Diamond", emoji: "💎", value: 110, image: "https://i.postimg.cc/9XGMSFbY/Ruby.webp" },
+        { name: "Thermite Bomb", emoji: "💣", value: 510, image: "https://i.postimg.cc/T2V3T2Bf/Thermite-Bomb.png" },
+        { name: "Nuclear Bomb", emoji: "💣", value: 540, image: "https://i.postimg.cc/QNQdjNvs/Nuclear-Bomb.png" },
+        { name: "Azura Bomb", emoji: "💣", value: 570, image: "https://i.postimg.cc/PfW5df9K/Azura-Bomb.png" },
+        { name: "Celebration Bomb", emoji: "💣", value: 10, image: "https://i.postimg.cc/Jh4xrpf6/Celebration-Bomb.png" },
+        { name: "Topaz Diamond", emoji: "💎", value: 10, image: "https://i.postimg.cc/VLgNfG3S/Topaz.webp" },
+        { name: "Lime Blade", emoji: "🗡️", value: 10, image: "https://i.postimg.cc/PJbHv7LF/Lime-Blade.png" },
+        { name: "Scarlet Ghost", emoji: "👻", value: 20, image: "https://i.postimg.cc/zGFLYd0K/latest-cb-20260907194223.webp" },
+        { name: "Eagle Glacier", emoji: "🦅", value: 20, image: "https://i.postimg.cc/qBsvpBWV/Eagle-Glacier.png" },
+        { name: "Starlight Gravity", emoji: "🪐", value: 420, image: "https://i.postimg.cc/zGFLYd0T/latest-cb-20260907114408.webp" },
+        { name: "Fiend Yeti", emoji: "❄️", value: 1260, image: "https://i.postimg.cc/fbBmGbCv/latest-cb-20260214132352.webp" },
+        { name: "Super Spirit Pain", emoji: "💥", value: 3150, image: "https://i.postimg.cc/Xv7LjsRD/Super-Spirit-Pain.png" },
+        { name: "Celestial Pain", emoji: "💥", value: 710, image: "https://i.postimg.cc/RC7ZvC2r/Celestial-Pain.png" },
+        { name: "Sadness Pain", emoji: "💥", value: 600, image: "https://i.postimg.cc/C5VS4qCd/Sadness.png" },
+        { name: "Frustration Pain", emoji: "💥", value: 550, image: "https://i.postimg.cc/26WCvwZP/Frustration.png" },
+        { name: "Torment Pain", emoji: "💥", value: 110, image: "https://i.postimg.cc/T1qGN3Q0/Torment.png" }
+      ].map(asset => ({ ...asset, category: "Variant", type: "Fruit skin" }));
+
+      const permanentFruits = [
+        { name: "Perm Dragon", emoji: "🐉", value: 6510 },
+        { name: "Perm Kitsune", emoji: "🦊", value: 5220 },
+        { name: "Perm Control", emoji: "🌀", value: 5220 },
+        { name: "Perm Magnet", emoji: "🧲", value: 4570 },
+        { name: "Perm Yeti", emoji: "❄️", value: 3780 },
+        { name: "Perm Tiger", emoji: "🐅", value: 3780 },
+        { name: "Perm Gas", emoji: "☁️", value: 3060 },
+        { name: "Perm Venom", emoji: "🐍", value: 2970 },
+        { name: "Perm Shadow", emoji: "🌑", value: 2910 },
+        { name: "Perm Dough", emoji: "🍩", value: 2850 },
+        { name: "Perm T-Rex", emoji: "🦖", value: 2760 },
+        { name: "Perm Mammoth", emoji: "🦣", value: 2760 },
+        { name: "Perm Gravity", emoji: "🪐", value: 2670 },
+        { name: "Perm Blizzard", emoji: "🌨️", value: 2580 },
+        { name: "Perm Pain", emoji: "💥", value: 2490 },
+        { name: "Perm Lightning", emoji: "⚡", value: 2400 },
+        { name: "Perm Portal", emoji: "🌀", value: 2130 },
+        { name: "Perm Phoenix", emoji: "🐦", value: 2130 },
+        { name: "Perm Spirit", emoji: "👻", value: 3150 },
+        { name: "Perm Sound", emoji: "🎵", value: 1950 },
+        { name: "Perm Spider", emoji: "🕸️", value: 1770 },
+        { name: "Perm Creation", emoji: "🌌", value: 1680 },
+        { name: "Perm Love", emoji: "💗", value: 1590 },
+        { name: "Perm Buddha", emoji: "✨", value: 1530 },
+        { name: "Perm Quake", emoji: "🌍", value: 1290 },
+        { name: "Perm Magma", emoji: "🌋", value: 1050 },
+        { name: "Perm Ghost", emoji: "👻", value: 990 },
+        { name: "Perm Light", emoji: "💡", value: 870 },
+        { name: "Perm Diamond", emoji: "💎", value: 720 },
+        { name: "Perm Eagle", emoji: "🦅", value: 705 },
+        { name: "Perm Dark", emoji: "🌘", value: 690 },
+        { name: "Perm Sand", emoji: "🏜️", value: 630 },
+        { name: "Perm Ice", emoji: "🧊", value: 570 },
+        { name: "Perm Rubber", emoji: "🎈", value: 930 },
+        { name: "Perm Flame", emoji: "🔥", value: 420 },
+        { name: "Perm Spike", emoji: "🌵", value: 140 },
+        { name: "Perm Smoke", emoji: "💨", value: 120 },
+        { name: "Perm Bomb", emoji: "💣", value: 90 },
+        { name: "Perm Spring", emoji: "🌀", value: 60 },
+        { name: "Perm Blade", emoji: "🗡️", value: 20 },
+        { name: "Perm Spin", emoji: "🌪️", value: 15 },
+        { name: "Perm Rocket", emoji: "🚀", value: 10 }
+      ].map(asset => ({ ...asset, category: "Permanent", type: "Permanent fruit" }));
+
+      const gamePasses = [
+        { name: "Fruit Notifier", emoji: "🔔", value: 3320 },
+        { name: "Dark Blade", emoji: "⚔️", value: 930 },
+        { name: "Mythical Scrolls", emoji: "📜", value: 1290 },
+        { name: "Legendary Scrolls", emoji: "📜", value: 600 },
+        { name: "+1 Fruit Storage", emoji: "🎒", value: 360 },
+        { name: "2x Mastery", emoji: "📘", value: 390 },
+        { name: "2x Money", emoji: "💰", value: 390 },
+        { name: "2x Boss Drops", emoji: "🎁", value: 240 },
+        { name: "Fast Boats", emoji: "🚤", value: 240 }
+      ].map(asset => ({ ...asset, category: "Game Pass", type: "Game pass" }));
+
+      const assets = [
+        ...fruits.map(fruit => ({ ...fruit, category: "Fruit" })),
+        ...fruitVariants,
+        ...permanentFruits,
+        ...gamePasses
+      ];
+      const fruitIcons = {
+        Buddha: "buddha",
+        Dragon: "dragon",
+        Light: "light",
+        Portal: "portal",
+        "West Dragon": "https://i.postimg.cc/7LfBxxs8/West-Dragon.png",
+        "East Dragon": "https://i.postimg.cc/gkzHzzjS/East-Dragon.png",
+        Magnet: "https://i.postimg.cc/2S7qNH21/latest-cb-20260905110645.webp",
+        Tiger: "https://i.postimg.cc/vBDS3KNp/download.png",
+        Lightning: "https://i.postimg.cc/MHTHLFZD/Rumble.png",
+        Pain: "https://i.postimg.cc/mk21srj7/Pain.png",
+        Gravity: "https://i.postimg.cc/D02Lw6vJ/Gravity.png",
+        Creation: "https://i.postimg.cc/HLctq6nT/Creation.png",
+        Spirit: "https://i.postimg.cc/wTpbhYvL/Spirit.png"
+      };
+      const iconUrl = asset => {
+        if (asset.image) return asset.image;
+        const fruitName = asset.name.replace(/^Perm /, "");
+        const iconName = fruitIcons[fruitName];
+        if (asset.category === "Game Pass") {
+          const gamePassIcons = {
+            "Fruit Notifier": "fruit_notifier",
+            "Dark Blade": "https://raw.githubusercontent.com/wailsba22/Bloxfr/main/images/Dark_Blade.webp",
+            "+1 Fruit Storage": "https://i.postimg.cc/hj7pmcdF/1-Fruit-Storage.png",
+            "2x Mastery": "2x_mastery",
+            "2x Money": "2x_money",
+            "2x Boss Drops": "https://i.postimg.cc/HxMBy616/2x-Boss-Drops.png",
+            "Mythical Scrolls": "https://i.postimg.cc/d3HktKNp/Mythical-Scrolls.png",
+            "Legendary Scrolls": "https://i.postimg.cc/YqDYtQJ0/Legendary-Scrolls.png",
+            "Fast Boats": "fast_boats"
+          };
+          const gamePassIcon = gamePassIcons[asset.name];
+          if (!gamePassIcon) return "";
+          return gamePassIcon.startsWith("https://")
+            ? gamePassIcon
+            : `https://raw.githubusercontent.com/Bensams/bloxpedia/main/assets/images/gamepass/${gamePassIcon}.png`;
+        };
+        if (iconName) {
+          if (iconName.startsWith("https://")) return iconName;
+          return `https://raw.githubusercontent.com/Bensams/bloxpedia/main/assets/images/fruits/${iconName}.png`;
+        }
+        return `https://raw.githubusercontent.com/wailsba22/Bloxfr/main/images/${encodeURIComponent(`${fruitName}_Fruit.webp`)}`;
+      };
+      const assetByName = new Map(assets.map(asset => [asset.name, asset]));
+      const grid = document.querySelector("#fruit-grid");
+      const search = document.querySelector("#search");
+      const filters = [...document.querySelectorAll(".filter")];
+      const tradeTab = document.querySelector("#trade-tab");
+      const valuesPanel = document.querySelector("#values-panel");
+      const tradePanel = document.querySelector("#trade-panel");
+      const fruitTypeFilters = document.querySelector("#fruit-type-filters");
+      const catalogTitle = document.querySelector("#catalog-title");
+      const catalogCaption = document.querySelector("#catalog-caption");
+      const tradeSides = {
+        you: {
+          items: [],
+          selectedName: assets[0].name,
+          search: document.querySelector("#you-search"),
+          options: document.querySelector("#you-options")
+        },
+        them: {
+          items: [],
+          selectedName: assets[0].name,
+          search: document.querySelector("#them-search"),
+          options: document.querySelector("#them-options")
+        }
+      };
+      const quickAddToast = document.querySelector("#quick-add-toast");
+      const quickAddMessage = document.querySelector("#quick-add-message");
+      let activeFilter = "All";
+      let activeSection = "Fruit";
+      let quickAddToastTimer;
+      let profileName = "";
+      let profileAvatar = "West Dragon";
+      let isCreatingProfile = false;
+      let favorites = new Set();
+      let recentHistory = [];
+      const passwordHashIterations = 310000;
+      const stockTypes = ["dealer", "mirage"];
+      const stockData = {
+        dealer: { names: [], updatedAt: null },
+        mirage: { names: [], updatedAt: null }
+      };
+      const liveStockData = { dealer: [], mirage: [], updatedAt: null, nextResetAt: null, mirageNextResetAt: null };
+      const liveStockUrl = "https://fruityblox.com/stock";
+      const liveStockCacheKey = "fruitfinder:live-stock-cache";
+      const liveStockSources = [
+        { name: "FruityBlox", url: liveStockUrl },
+        { name: "Live backup", url: `https://r.jina.ai/http://fruityblox.com/stock` },
+        { name: "backup feed", url: `https://api.allorigins.win/raw?url=${encodeURIComponent(liveStockUrl)}` }
+      ];
+      let hasLiveStock = false;
+      let isRefreshingLiveStock = false;
+      let activeStockView = "live";
+      let activeStockType = "dealer";
+      let stockDraft = [];
+      const profileAvatars = [
+        "West Dragon", "East Dragon", "Kitsune", "Buddha", "Control", "Dough",
+        "Lightning", "Magnet", "Yeti", "Magma", "Eagle", "Spirit", "Portal"
+      ];
+      const legacyProfileAvatars = {
+        "🍈": "West Dragon",
+        "🐉": "West Dragon",
+        "🦊": "Kitsune",
+        "✨": "Buddha",
+        "🌀": "Control",
+        "🍩": "Dough",
+        "⚡": "Lightning",
+        "🧲": "Magnet",
+        "❄️": "Yeti",
+        "🌋": "Magma",
+        "🦅": "Eagle",
+        "👻": "Spirit"
+      };
+
+      function formatValue(value) {
+        if (value === 0) return "0M";
+        const scaledValue = value >= 1000 ? value / 1000 : value < 1 ? value * 1000 : value;
+        const unit = value >= 1000 ? "B" : value < 1 ? "K" : "M";
+        const formattedValue = Number(scaledValue.toFixed(2)).toString();
+        return `${formattedValue}${unit}`;
+      }
+
+      function showQuickAddMessage(message, isError = false) {
+        quickAddMessage.textContent = message;
+        quickAddToast.dataset.state = isError ? "error" : "success";
+        quickAddToast.hidden = false;
+        window.clearTimeout(quickAddToastTimer);
+        quickAddToastTimer = window.setTimeout(() => {
+          quickAddToast.hidden = true;
+        }, 2400);
+      }
+
+      function getProfileStorageKey(collection) {
+        const profileKey = encodeURIComponent(profileName.trim().toLocaleLowerCase() || "guest");
+        return `fruitfinder:${profileKey}:${collection}`;
+      }
+
+      function normalizeAccountName(name) {
+        return name.trim().normalize("NFKC").toLocaleLowerCase();
+      }
+
+      function normalizeProfileAvatar(value) {
+        if (profileAvatars.includes(value)) return value;
+        return legacyProfileAvatars[value] || "West Dragon";
+      }
+
+      function renderProfileAvatar(element, fruitName) {
+        const asset = assetByName.get(fruitName) || assetByName.get("West Dragon");
+        element.replaceChildren(createAssetIcon(asset, "profile-avatar-art"));
+      }
+
+      function getAccountStorageKey(name) {
+        return `fruitfinder:account:${encodeURIComponent(normalizeAccountName(name))}`;
+      }
+
+      function bytesToBase64(bytes) {
+        return btoa(String.fromCharCode(...bytes));
+      }
+
+      function base64ToBytes(value) {
+        return Uint8Array.from(atob(value), character => character.charCodeAt(0));
+      }
+
+      async function hashPassword(password, salt, iterations = passwordHashIterations) {
+        if (!window.crypto || !window.crypto.subtle) {
+          throw new Error("Secure browser cryptography is unavailable.");
+        }
+        if (!Number.isSafeInteger(iterations) || iterations < 100000 || iterations > 500000) {
+          throw new Error("The stored password hash settings are invalid.");
+        }
+        const key = await window.crypto.subtle.importKey(
+          "raw",
+          new TextEncoder().encode(password),
+          "PBKDF2",
+          false,
+          ["deriveBits"]
+        );
+        const result = await window.crypto.subtle.deriveBits({
+          name: "PBKDF2",
+          salt,
+          iterations,
+          hash: "SHA-256"
+        }, key, 256);
+        return new Uint8Array(result);
+      }
+
+      function hashesMatch(first, second) {
+        if (first.length !== second.length) return false;
+        let difference = 0;
+        for (let index = 0; index < first.length; index += 1) {
+          difference |= first[index] ^ second[index];
+        }
+        return difference === 0;
+      }
+
+      function saveProfileData() {
+        try {
+          localStorage.setItem(getProfileStorageKey("favorites"), JSON.stringify([...favorites]));
+          localStorage.setItem(getProfileStorageKey("history"), JSON.stringify(recentHistory));
+        } catch (error) {
+          console.error("Could not save your FruitFinder data.", error);
+          showQuickAddMessage("Could not save your data in this browser.", true);
+        }
+      }
+
+      function loadProfileData() {
+        try {
+          const storedFavorites = JSON.parse(localStorage.getItem(getProfileStorageKey("favorites")) || "[]");
+          const storedHistory = JSON.parse(localStorage.getItem(getProfileStorageKey("history")) || "[]");
+          favorites = new Set(Array.isArray(storedFavorites)
+            ? storedFavorites.filter(name => fruits.some(fruit => fruit.name === name))
+            : []);
+          recentHistory = Array.isArray(storedHistory)
+            ? storedHistory.filter(entry =>
+              entry && fruits.some(fruit => fruit.name === entry.name) &&
+              typeof entry.checkedAt === "string" && !Number.isNaN(Date.parse(entry.checkedAt))
+            ).slice(0, 10)
+            : [];
+        } catch (error) {
+          console.error("Could not load your FruitFinder data.", error);
+          favorites = new Set();
+          recentHistory = [];
+          showQuickAddMessage("Could not read saved data in this browser.", true);
+        }
+      }
+
+      function getStockStorageKey(type) {
+        return `fruitfinder:stock:${type}`;
+      }
+
+      function loadStockData() {
+        for (const type of stockTypes) {
+          try {
+            const storedStock = JSON.parse(localStorage.getItem(getStockStorageKey(type)) || "null");
+            const validFruitNames = new Set(assets
+              .filter(asset => asset.category === "Fruit")
+              .map(asset => asset.name));
+            stockData[type] = storedStock && Array.isArray(storedStock.names)
+              ? {
+                names: [...new Set(storedStock.names.filter(name => validFruitNames.has(name)))],
+                updatedAt: typeof storedStock.updatedAt === "string" &&
+                  !Number.isNaN(Date.parse(storedStock.updatedAt))
+                  ? storedStock.updatedAt
+                  : null
+              }
+              : { names: [], updatedAt: null };
+          } catch (error) {
+            console.error(`Could not load ${type} stock from this browser.`, error);
+            stockData[type] = { names: [], updatedAt: null };
+            showQuickAddMessage(`Could not read saved ${type} stock.`, true);
+          }
+        }
+        refreshStockCount();
+      }
+
+      function refreshStockCount() {
+        const total = hasLiveStock
+          ? liveStockData.dealer.length + liveStockData.mirage.length
+          : stockTypes.reduce((count, type) => count + stockData[type].names.length, 0);
+        document.querySelector("#stock-tab-count").textContent = total ? String(total) : "";
+      }
+
+      function loadLiveStockCache() {
+        try {
+          const cached = JSON.parse(localStorage.getItem(liveStockCacheKey) || "null");
+          if (!cached || typeof cached.updatedAt !== "string" ||
+              Number.isNaN(Date.parse(cached.updatedAt)) ||
+              !Array.isArray(cached.dealer) || cached.dealer.length === 0 ||
+              !Array.isArray(cached.mirage) || cached.mirage.length === 0) return;
+          liveStockData.dealer = cached.dealer;
+          liveStockData.mirage = cached.mirage;
+          liveStockData.updatedAt = cached.updatedAt;
+          liveStockData.nextResetAt = cached.nextResetAt;
+          liveStockData.mirageNextResetAt = cached.mirageNextResetAt;
+          hasLiveStock = true;
+        } catch (error) {
+          console.error("Could not load cached live stock.", error);
+          showQuickAddMessage("Could not read the saved live stock snapshot.", true);
+        }
+      }
+
+      function parseLiveStockPage(html) {
+        if (html.includes("## Normal") && html.includes("## Mirage")) {
+          const parseMarkdownSection = (heading, nextHeading) => {
+            const start = html.indexOf(`## ${heading}`);
+            const end = nextHeading ? html.indexOf(`## ${nextHeading}`, start + 1) : html.length;
+            if (start < 0 || (nextHeading && end < 0)) {
+              throw new Error(`The live backup is missing its ${heading} section.`);
+            }
+            const section = html.slice(start, end < 0 ? html.length : end);
+            const items = [...section.matchAll(/\[!\[Image \d+: ([^\]]+)\]\(([^)]+)\)\s+###\s+([^\]]+)\]\([^)]+\)/g)]
+              .map(match => {
+                const prices = [...match[3].matchAll(/[\d,]+/g)]
+                  .map(price => Number(price[0].replace(/,/g, "")))
+                  .filter(Number.isFinite);
+                const type = match[3].match(/\b(Natural|Elemental|Beast)\b/)?.[0] || "";
+                return {
+                  name: match[1].trim(),
+                  type,
+                  price: prices[0] || 0,
+                  robuxPrice: prices[1] || 0
+                };
+              });
+            if (items.length === 0) throw new Error(`No fruits were found in the live ${heading} section.`);
+            return items;
+          };
+          const now = Date.now();
+          const resetAt = hours => {
+            const duration = hours * 60 * 60 * 1000;
+            return now - now % duration + duration;
+          };
+          return {
+            dealer: parseMarkdownSection("Normal", "Mirage"),
+            mirage: parseMarkdownSection("Mirage"),
+            updatedAt: new Date(now).toISOString(),
+            nextResetAt: resetAt(4),
+            mirageNextResetAt: resetAt(2)
+          };
+        }
+
+        const page = new DOMParser().parseFromString(html, "text/html");
+        const sections = [...page.querySelectorAll("section")];
+        const parseSection = heading => {
+          const section = sections.find(candidate =>
+            candidate.querySelector("h2")?.textContent.trim().toLowerCase() === heading
+          );
+          if (!section) throw new Error(`The stock page is missing its ${heading} section.`);
+          const items = [...section.querySelectorAll('a[href^="/items/"]')].map(link => {
+            const name = link.querySelector("h3")?.textContent.trim();
+            if (!name) return null;
+            const type = link.querySelector("span")?.textContent.trim() || "";
+            const priceText = link.innerText.replace(name, "").replace(type, "");
+            const prices = [...priceText.matchAll(/[\d,]+/g)]
+              .map(match => Number(match[0].replace(/,/g, "")))
+              .filter(Number.isFinite);
+            return { name, type, price: prices[0] || 0, robuxPrice: prices[1] || 0 };
+          }).filter(Boolean);
+          if (items.length === 0) throw new Error(`No fruits were found in the ${heading} stock section.`);
+          return items;
+        };
+        const now = Date.now();
+        const resetAt = hours => {
+          const duration = hours * 60 * 60 * 1000;
+          return now - now % duration + duration;
+        };
+        return {
+          dealer: parseSection("normal"),
+          mirage: parseSection("mirage"),
+          updatedAt: new Date(now).toISOString(),
+          nextResetAt: resetAt(4),
+          mirageNextResetAt: resetAt(2)
+        };
+      }
+
+      function formatCountdown(timestamp) {
+        const remainingSeconds = Math.max(0, Math.floor((timestamp - Date.now()) / 1000));
+        const hours = Math.floor(remainingSeconds / 3600);
+        const minutes = Math.floor((remainingSeconds % 3600) / 60);
+        const seconds = remainingSeconds % 60;
+        return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+      }
+
+      async function refreshLiveStock() {
+        if (isRefreshingLiveStock) return;
+        isRefreshingLiveStock = true;
+        const button = document.querySelector("#stock-refresh");
+        const status = document.querySelector("#live-stock-updated");
+        button.disabled = true;
+        status.dataset.state = "loading";
+        status.textContent = "Refreshing live stock…";
+        try {
+        let snapshot;
+        let sourceName = "";
+        const sourceErrors = [];
+        for (let index = 0; index < liveStockSources.length; index += 1) {
+          const source = liveStockSources[index];
+          if (index > 0) status.textContent = "Primary feed unavailable; trying backup…";
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 12000);
+          try {
+            const response = await fetch(source.url, { cache: "no-store", signal: controller.signal });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            snapshot = parseLiveStockPage(await response.text());
+            sourceName = source.name;
+            break;
+          } catch (error) {
+            sourceErrors.push(`${source.name}: ${error.message}`);
+          } finally {
+            clearTimeout(timeout);
+          }
+        }
+        if (!snapshot) throw new Error(sourceErrors.join("; "));
+        liveStockData.dealer = snapshot.dealer;
+        liveStockData.mirage = snapshot.mirage;
+        liveStockData.updatedAt = snapshot.updatedAt;
+        liveStockData.nextResetAt = snapshot.nextResetAt;
+        liveStockData.mirageNextResetAt = snapshot.mirageNextResetAt;
+        hasLiveStock = true;
+        status.dataset.state = "success";
+        status.textContent = `${sourceName === "FruityBlox" ? "Live" : "Live · backup"} · updated ${new Date(snapshot.updatedAt).toLocaleTimeString()}`;
+        try {
+          localStorage.setItem(liveStockCacheKey, JSON.stringify(snapshot));
+        } catch (error) {
+          console.error("Could not cache live Blox Fruits stock.", error);
+        }
+        refreshStockCount();
+        renderStockPanel();
+        } catch (error) {
+        console.error("Could not refresh live Blox Fruits stock.", error);
+        status.dataset.state = "error";
+        status.textContent = hasLiveStock
+          ? `Showing saved stock from ${new Date(liveStockData.updatedAt).toLocaleString()} · refresh failed.`
+          : "Live stock unavailable. Try refreshing again.";
+          if (!hasLiveStock) {
+            const grid = document.querySelector("#live-stock-grid");
+            grid.replaceChildren();
+            const message = document.createElement("p");
+            message.className = "empty-state";
+            message.textContent = "Could not load live stock. Check your connection and try again.";
+            grid.append(message);
+          }
+        } finally {
+          isRefreshingLiveStock = false;
+          button.disabled = false;
+        }
+      }
+
+      function renderStockCards(grid, items, emptyMessage, isLive) {
+        grid.replaceChildren();
+        if (items.length === 0) {
+          const empty = document.createElement("p");
+          empty.className = "empty-state";
+          empty.textContent = emptyMessage;
+          grid.append(empty);
+          return;
+        }
+        for (const item of items) {
+          const name = typeof item === "string" ? item : item.name;
+          const asset = assetByName.get(name);
+          const card = document.createElement("article");
+          card.className = "stock-item";
+          const visual = document.createElement("div");
+          visual.className = "stock-item-visual";
+          if (asset) visual.append(createAssetIcon(asset, "fruit-image"));
+          else {
+            const fallbackIcon = document.createElement("span");
+            fallbackIcon.className = "picker-icon";
+            fallbackIcon.textContent = "🍈";
+            visual.append(fallbackIcon);
+          }
+          const copy = document.createElement("div");
+          copy.className = "stock-item-copy";
+          const label = document.createElement("div");
+          label.className = "stock-item-name";
+          label.textContent = name;
+          const type = document.createElement("div");
+          type.className = "stock-item-type";
+          type.textContent = isLive ? item.type || asset?.type || "Fruit" : asset?.type || "Fruit";
+          copy.append(label, type);
+          if (isLive && item.price) {
+            const price = document.createElement("div");
+            price.className = "stock-item-price";
+            price.textContent = `${item.price.toLocaleString()} Beli${item.robuxPrice ? ` · ${item.robuxPrice.toLocaleString()} Robux` : ""}`;
+            copy.append(price);
+          }
+          const badge = document.createElement("span");
+          badge.className = "stock-item-tag";
+          badge.textContent = "In stock";
+          card.append(visual, copy, badge);
+          grid.append(card);
+        }
+      }
+
+      function updateStockCountdowns() {
+        if (!hasLiveStock) return;
+        document.querySelector("#live-stock-reset-times").textContent =
+          `Next Dealer reset: ${formatCountdown(liveStockData.nextResetAt)} · Next Mirage reset: ${formatCountdown(liveStockData.mirageNextResetAt)}`;
+      }
+
+      function renderStockPanel() {
+        const isLiveView = activeStockView === "live";
+        const currentStock = stockData[activeStockType];
+        const isMirage = activeStockType === "mirage";
+        document.querySelector("#stock-title").textContent = `${isMirage ? "Mirage" : "Dealer"} stock`;
+        document.querySelector("#stock-caption").textContent = isLiveView
+          ? `Current ${isMirage ? "Mirage" : "Dealer"} fruits, refreshed from the live stock feed.`
+          : `Your saved ${isMirage ? "Mirage" : "Dealer"} fruit list.`;
+        document.querySelector("#live-stock-actions").hidden = !isLiveView;
+        document.querySelector("#manual-stock-actions").hidden = isLiveView;
+        document.querySelector("#live-stock-content").hidden = !isLiveView;
+        document.querySelector("#manual-stock-content").hidden = isLiveView;
+        document.querySelector("#live-stock-view-tab").setAttribute("aria-selected", String(isLiveView));
+        document.querySelector("#manual-stock-view-tab").setAttribute("aria-selected", String(!isLiveView));
+        document.querySelector("#stock-updated").textContent = currentStock.updatedAt
+          ? `Last updated ${new Date(currentStock.updatedAt).toLocaleString()} · ${currentStock.names.length} fruits`
+          : "No stock saved yet";
+        for (const type of stockTypes) {
+          document.querySelector(`#${type}-stock-tab`).setAttribute("aria-selected", String(!isLiveView && activeStockType === type));
+          document.querySelector(`#live-${type}-stock-tab`).setAttribute("aria-selected", String(isLiveView && activeStockType === type));
+        }
+        renderStockCards(
+          document.querySelector("#stock-grid"),
+          currentStock.names,
+          `No ${isMirage ? "Mirage" : "Dealer"} stock saved. Select “Edit stock” to add fruits you see in the game.`,
+          false
+        );
+        renderStockCards(
+          document.querySelector("#live-stock-grid"),
+          liveStockData[activeStockType],
+          hasLiveStock ? `No fruits found in the live ${isMirage ? "Mirage" : "Dealer"} stock.` : "Loading current stock…",
+          true
+        );
+        updateStockCountdowns();
+      }
+
+      function renderStockDraft() {
+        const list = document.querySelector("#stock-draft-list");
+        list.replaceChildren();
+        if (stockDraft.length === 0) {
+          const empty = document.createElement("p");
+          empty.className = "stock-editor-empty";
+          empty.textContent = "No fruits selected. Add the fruits currently available.";
+          list.append(empty);
+          return;
+        }
+        for (const name of stockDraft) {
+          const asset = assetByName.get(name);
+          if (!asset) continue;
+          const row = document.createElement("div");
+          row.className = "stock-draft-item";
+          row.append(createAssetIcon(asset, "picker-icon"));
+          const label = document.createElement("span");
+          label.className = "stock-draft-name";
+          label.textContent = asset.name;
+          const remove = document.createElement("button");
+          remove.className = "stock-remove-button";
+          remove.type = "button";
+          remove.textContent = "×";
+          remove.setAttribute("aria-label", `Remove ${asset.name} from stock`);
+          remove.addEventListener("click", () => {
+            stockDraft = stockDraft.filter(stockName => stockName !== asset.name);
+            renderStockDraft();
+          });
+          row.append(label, remove);
+          list.append(row);
+        }
+      }
+
+      function openStockEditor() {
+        stockDraft = [...stockData[activeStockType].names];
+        const location = activeStockType === "mirage" ? "Mirage" : "Dealer";
+        document.querySelector("#stock-editor-title").textContent = `Edit ${location} stock`;
+        document.querySelector("#stock-editor-dialog").showModal();
+        document.querySelector("#stock-fruit-input").value = "";
+        renderStockDraft();
+        document.querySelector("#stock-fruit-input").focus();
+      }
+
+      function saveStockDraft() {
+        const stock = { names: [...stockDraft], updatedAt: new Date().toISOString() };
+        try {
+          localStorage.setItem(getStockStorageKey(activeStockType), JSON.stringify(stock));
+        } catch (error) {
+          console.error(`Could not save ${activeStockType} stock.`, error);
+          showQuickAddMessage(`Could not save ${activeStockType} stock in this browser.`, true);
+          return;
+        }
+        stockData[activeStockType] = stock;
+        refreshStockCount();
+        renderStockPanel();
+        document.querySelector("#stock-editor-dialog").close();
+        showQuickAddMessage(`${activeStockType === "mirage" ? "Mirage" : "Dealer"} stock saved.`);
+      }
+
+      function restoreProfile() {
+        try {
+          const sessionAccountName = localStorage.getItem("fruitfinder:session")
+            || sessionStorage.getItem("fruitfinder:session");
+          profileName = "";
+          profileAvatar = "West Dragon";
+          if (sessionAccountName) {
+            const storedAccount = localStorage.getItem(getAccountStorageKey(sessionAccountName));
+            if (storedAccount) {
+              const account = JSON.parse(storedAccount);
+              if (typeof account.name === "string") {
+                profileName = account.name;
+                profileAvatar = normalizeProfileAvatar(account.avatar);
+                localStorage.setItem("fruitfinder:session", normalizeAccountName(account.name));
+                sessionStorage.removeItem("fruitfinder:session");
+              }
+            } else {
+              localStorage.removeItem("fruitfinder:session");
+              sessionStorage.removeItem("fruitfinder:session");
+            }
+          }
+          if (!profileName) {
+            const legacyName = localStorage.getItem("fruitfinder:profile");
+            if (legacyName) {
+              document.querySelector("#profile-name").value = legacyName;
+              localStorage.removeItem("fruitfinder:profile");
+            }
+          }
+        } catch (error) {
+          console.error("Could not restore your FruitFinder profile.", error);
+          profileName = "";
+          showQuickAddMessage("Could not restore your local session. Please sign in again.", true);
+        }
+        loadProfileData();
+        renderProfile();
+        refreshFeatureCounts();
+      }
+
+      function renderProfile() {
+        const form = document.querySelector("#profile-form");
+        const status = document.querySelector("#profile-status");
+        const signout = document.querySelector("#profile-signout");
+        form.hidden = Boolean(profileName);
+        status.hidden = !profileName;
+        signout.hidden = !profileName;
+        status.textContent = profileName ? `Signed in as ${profileName}` : "";
+        document.querySelector("#profile-password").autocomplete = isCreatingProfile ? "new-password" : "current-password";
+        document.querySelector("#profile-password-confirm").hidden = !isCreatingProfile;
+        document.querySelector("#profile-password-confirm").required = isCreatingProfile;
+        document.querySelector("#profile-submit").textContent = isCreatingProfile ? "Create profile" : "Sign in";
+        document.querySelector("#profile-mode-toggle").textContent = isCreatingProfile ? "Use existing profile" : "Create profile";
+        const avatarButton = document.querySelector("#profile-avatar-open");
+        renderProfileAvatar(document.querySelector("#profile-avatar-icon"), profileAvatar);
+        document.querySelector("#profile-avatar-description").textContent = profileName || "Sign in or create an account";
+        avatarButton.setAttribute("aria-label", profileName ? `Open your profile, signed in as ${profileName}` : "Open profile: sign in or create an account");
+        renderProfileAvatar(document.querySelector("#profile-dialog-avatar"), profileAvatar);
+        document.querySelector("#profile-dialog-name").textContent = profileName;
+        document.querySelector("#profile-dialog-account").hidden = !profileName;
+        document.querySelector("#profile-dialog-guest").hidden = Boolean(profileName);
+        document.querySelector("#profile-avatar-select").value = profileAvatar;
+        document.querySelector("#profile-new-name").value = profileName;
+      }
+
+      function refreshFeatureCounts() {
+        document.querySelector("#favorites-tab-count").textContent = String(favorites.size);
+        document.querySelector("#history-tab-count").textContent = String(recentHistory.length);
+        document.querySelector("#favorites-clear").disabled = favorites.size === 0;
+      }
+
+      function addAssetToSide(sideName, assetName) {
+        const side = tradeSides[sideName];
+        if (side.items.length >= 4) {
+          if (sideName === "you") showQuickAddMessage("Your offer is full. Remove an item to add another.", true);
+          return false;
+        }
+        side.items.push(assetName);
+        renderTrade();
+        return true;
+      }
+
+      function createAssetIcon(asset, className) {
+        const imageUrl = iconUrl(asset);
+        if (imageUrl) {
+          const image = document.createElement("img");
+          image.className = className;
+          image.src = imageUrl;
+          image.alt = "";
+          image.loading = "lazy";
+          image.decoding = "async";
+          image.addEventListener("error", () => {
+            const fallback = document.createElement("span");
+            fallback.className = className;
+            fallback.setAttribute("aria-hidden", "true");
+            fallback.textContent = asset.emoji;
+            image.replaceWith(fallback);
+          }, { once: true });
+          return image;
+        }
+
+        const fallback = document.createElement("span");
+        fallback.className = className;
+        fallback.setAttribute("aria-hidden", "true");
+        fallback.textContent = asset.emoji;
+        return fallback;
+      }
+
+      function renderFruitList() {
+        const query = search.value.trim().toLowerCase();
+        const fruitAssets = assets.filter(asset => asset.category === "Fruit");
+        const rankedFruits = [...fruitAssets].sort((a, b) => b.value - a.value).slice(0, 10);
+        const candidates = {
+          Fruit: fruitAssets,
+          Variant: fruitVariants,
+          Permanent: permanentFruits,
+          "Game Pass": gamePasses,
+          All: assets,
+          Favorites: fruitAssets.filter(fruit => favorites.has(fruit.name)),
+          Ranking: rankedFruits,
+          History: recentHistory.map(entry => {
+            const asset = assetByName.get(entry.name);
+            return asset ? { ...asset, checkedAt: entry.checkedAt } : null;
+          }).filter(Boolean)
+        }[activeSection] || [];
+        const visible = candidates
+          .filter(asset =>
+            (!["Fruit", "Favorites"].includes(activeSection) || activeFilter === "All" || asset.type === activeFilter) &&
+            asset.name.toLowerCase().includes(query)
+          );
+        if (activeSection === "Favorites") {
+          const sortOrder = document.querySelector("#favorites-sort").value;
+          if (sortOrder === "value-asc") visible.sort((a, b) => a.value - b.value);
+          else if (sortOrder === "name-asc") visible.sort((a, b) => a.name.localeCompare(b.name));
+          else if (sortOrder === "recently-added") {
+            const addedOrder = [...favorites].reverse();
+            visible.sort((a, b) => addedOrder.indexOf(a.name) - addedOrder.indexOf(b.name));
+          } else visible.sort((a, b) => b.value - a.value);
+        } else if (activeSection !== "History" && activeSection !== "Ranking") {
+          visible.sort((a, b) => b.value - a.value);
+        }
+
+        grid.replaceChildren();
+        if (visible.length === 0) {
+          const empty = document.createElement("p");
+          empty.className = "empty-state";
+          const emptyMessages = {
+            Favorites: "No favorite fruits yet. Add one with the ☆ Favorite button.",
+            History: "No recent checks yet. Use Check on a fruit to add it here."
+          };
+          empty.textContent = emptyMessages[activeSection] || "No matching items. Try another search or category.";
+          grid.append(empty);
+          return;
+        }
+
+        for (const [index, asset] of visible.entries()) {
+          const card = document.createElement("article");
+          card.className = "fruit-card";
+          card.dataset.category = asset.category;
+          card.dataset.type = asset.type;
+          const visual = document.createElement("div");
+          visual.className = "fruit-visual";
+          const badge = document.createElement("span");
+          badge.className = "visual-badge";
+          badge.textContent = activeSection === "Ranking"
+            ? `Rank #${index + 1}`
+            : activeSection === "History"
+              ? `Checked ${new Date(asset.checkedAt).toLocaleString()}`
+              : asset.category === "Permanent" ? "Permanent" : asset.category;
+          const fallback = document.createElement("span");
+          fallback.className = "fruit-emoji";
+          fallback.setAttribute("aria-hidden", "true");
+          fallback.textContent = asset.emoji;
+          const imageUrl = iconUrl(asset);
+          if (imageUrl) {
+            const image = document.createElement("img");
+            image.className = "fruit-image";
+            image.src = imageUrl;
+            image.alt = asset.category === "Game Pass"
+              ? `${asset.name} game pass icon`
+              : `${asset.name.replace(/^Perm /, "")} fruit icon`;
+            image.loading = "lazy";
+            image.decoding = "async";
+            fallback.hidden = true;
+            image.addEventListener("error", () => {
+              image.remove();
+              fallback.hidden = false;
+            }, { once: true });
+            visual.append(image);
+          }
+          const info = document.createElement("div");
+          info.className = "fruit-info";
+          const name = document.createElement("h3");
+          name.className = "fruit-name";
+          name.textContent = asset.name;
+          const type = document.createElement("span");
+          type.className = "fruit-type";
+          type.textContent = asset.checkedAt
+            ? `Last checked ${new Date(asset.checkedAt).toLocaleString()}`
+            : asset.category === "Fruit" ? `${asset.category} · ${asset.type}` : asset.type;
+          const value = document.createElement("span");
+          value.className = "fruit-value";
+          value.textContent = formatValue(asset.value);
+          const quickAdd = document.createElement("button");
+          quickAdd.className = "quick-add";
+          quickAdd.type = "button";
+          quickAdd.textContent = "+";
+          const addedCount = tradeSides.you.items.filter(name => name === asset.name).length;
+          quickAdd.dataset.added = String(addedCount > 0);
+          quickAdd.setAttribute("aria-label", tradeSides.you.items.length >= 4
+            ? "Your offer is full; remove an item before adding another"
+            : `Add ${asset.name} to your offer`);
+          quickAdd.title = tradeSides.you.items.length >= 4
+            ? "Your offer is full — remove an item first"
+            : "Add to your offer";
+          if (addedCount > 0) {
+            const count = document.createElement("span");
+            count.className = "quick-add-count";
+            count.textContent = String(addedCount);
+            quickAdd.append(count);
+          }
+          quickAdd.disabled = tradeSides.you.items.length >= 4;
+          quickAdd.addEventListener("click", () => {
+            if (!addAssetToSide("you", asset.name)) return;
+            renderFruitList();
+            showQuickAddMessage(`${asset.name} added to your offer.`);
+          });
+          info.append(name, type);
+          visual.append(badge, fallback);
+          visual.append(quickAdd);
+          card.append(visual, info, value);
+          if (asset.category === "Fruit") {
+            const actions = document.createElement("div");
+            actions.className = "fruit-card-actions";
+            const favoriteButton = document.createElement("button");
+            favoriteButton.className = "fruit-card-action";
+            favoriteButton.type = "button";
+            favoriteButton.setAttribute("aria-pressed", String(favorites.has(asset.name)));
+            favoriteButton.textContent = favorites.has(asset.name) ? "★ Favorite" : "☆ Favorite";
+            favoriteButton.setAttribute("aria-label", `${favorites.has(asset.name) ? "Remove" : "Add"} ${asset.name} ${favorites.has(asset.name) ? "from" : "to"} favorites`);
+            favoriteButton.addEventListener("click", () => {
+              const isFavorite = favorites.has(asset.name);
+              if (isFavorite) favorites.delete(asset.name);
+              else favorites.add(asset.name);
+              saveProfileData();
+              refreshFeatureCounts();
+              renderFruitList();
+              showQuickAddMessage(isFavorite
+                ? `${asset.name} removed from favorites.`
+                : `${asset.name} added to favorites.`);
+            });
+            const checkButton = document.createElement("button");
+            checkButton.className = "fruit-card-action";
+            checkButton.type = "button";
+            checkButton.textContent = "Check";
+            checkButton.setAttribute("aria-label", `Add ${asset.name} to recent checks`);
+            checkButton.addEventListener("click", () => {
+              recentHistory.unshift({ name: asset.name, checkedAt: new Date().toISOString() });
+              recentHistory = recentHistory.slice(0, 10);
+              saveProfileData();
+              refreshFeatureCounts();
+              renderFruitList();
+              showQuickAddMessage(`${asset.name} added to recent checks.`);
+            });
+            actions.append(favoriteButton, checkButton);
+            card.append(actions);
+          }
+          grid.append(card);
+        }
+      }
+
+      function renderPicker(sideName) {
+        const side = tradeSides[sideName];
+        const asset = assetByName.get(side.selectedName);
+        const preview = document.querySelector(`#${sideName}-preview`);
+        preview.replaceChildren();
+        if (!asset) return;
+
+        const icon = createAssetIcon(asset, "picker-icon");
+        const copy = document.createElement("span");
+        copy.className = "picker-copy";
+        const name = document.createElement("span");
+        name.className = "picker-name";
+        name.textContent = asset.name;
+        const type = document.createElement("span");
+        type.className = "picker-type";
+        type.textContent = asset.category === "Fruit" ? `${asset.category} · ${asset.type}` : asset.type;
+        const value = document.createElement("span");
+        value.className = "picker-value";
+        value.textContent = formatValue(asset.value);
+        copy.append(name, type);
+        preview.append(icon, copy, value);
+      }
+
+      function closePicker(sideName) {
+        const side = tradeSides[sideName];
+        side.options.hidden = true;
+        side.search.setAttribute("aria-expanded", "false");
+        document.querySelector(`#${sideName}-picker`).closest(".trade-side").classList.remove("picker-open");
+      }
+
+      function choosePickerAsset(sideName, assetName) {
+        const side = tradeSides[sideName];
+        side.selectedName = assetName;
+        side.search.value = "";
+        renderPicker(sideName);
+        closePicker(sideName);
+        side.search.focus();
+      }
+
+      function renderPickerOptions(sideName) {
+        const side = tradeSides[sideName];
+        const query = side.search.value.trim().toLowerCase();
+        const visible = assets.filter(asset => {
+          const searchText = `${asset.name} ${asset.category} ${asset.type} ${asset.category === "Permanent" ? "perm permanent fruit" : ""} ${asset.category === "Game Pass" ? "pass gamepass game pass" : ""}`.toLowerCase();
+          return searchText.includes(query);
+        });
+        side.options.replaceChildren();
+
+        if (visible.length === 0) {
+          const empty = document.createElement("p");
+          empty.className = "picker-empty";
+          empty.textContent = "No matching items. Try another name.";
+          side.options.append(empty);
+        } else {
+          for (const categoryName of ["Fruit", "Variant", "Permanent", "Game Pass"]) {
+            const categoryItems = visible
+              .filter(asset => asset.category === categoryName)
+              .sort((a, b) => b.value - a.value);
+            if (categoryItems.length === 0) continue;
+
+            const group = document.createElement("div");
+            group.className = "picker-group";
+            const heading = document.createElement("div");
+            heading.className = "picker-group-label";
+            heading.textContent = {
+              Fruit: "Fruits",
+              Variant: "Fruit variants",
+              Permanent: "Permanent fruits",
+              "Game Pass": "Game passes"
+            }[categoryName];
+            group.append(heading);
+
+            for (const asset of categoryItems) {
+              const option = document.createElement("button");
+              option.className = "picker-option";
+              option.type = "button";
+              option.id = `${sideName}-option-${assets.indexOf(asset)}`;
+              option.setAttribute("role", "option");
+              option.setAttribute("aria-selected", String(asset.name === side.selectedName));
+              option.addEventListener("click", () => choosePickerAsset(sideName, asset.name));
+              const icon = createAssetIcon(asset, "picker-option-icon");
+              const copy = document.createElement("span");
+              copy.className = "picker-option-copy";
+              const name = document.createElement("span");
+              name.className = "picker-option-name";
+              name.textContent = asset.name;
+              const type = document.createElement("span");
+              type.className = "picker-option-type";
+              type.textContent = asset.category === "Fruit" ? `${asset.category} · ${asset.type}` : asset.type;
+              const value = document.createElement("span");
+              value.className = "picker-option-value";
+              value.textContent = formatValue(asset.value);
+              copy.append(name, type);
+              option.append(icon, copy, value);
+              group.append(option);
+            }
+            side.options.append(group);
+          }
+        }
+
+        side.search.setAttribute("aria-expanded", "true");
+        document.querySelector(`#${sideName}-picker`).closest(".trade-side").classList.add("picker-open");
+        side.options.hidden = false;
+      }
+
+      function movePickerSelection(sideName, direction) {
+        const side = tradeSides[sideName];
+        const options = [...side.options.querySelectorAll(".picker-option")];
+        if (options.length === 0) return;
+        const currentIndex = options.findIndex(option => option.getAttribute("aria-selected") === "true");
+        const nextIndex = currentIndex < 0
+          ? (direction > 0 ? 0 : options.length - 1)
+          : (currentIndex + direction + options.length) % options.length;
+        options.forEach((option, index) => option.setAttribute("aria-selected", String(index === nextIndex)));
+        side.search.setAttribute("aria-activedescendant", options[nextIndex].id);
+        options[nextIndex].scrollIntoView({ block: "nearest" });
+      }
+
+      function renderSide(sideName) {
+        const side = tradeSides[sideName];
+        const container = document.querySelector(`#${sideName}-items`);
+        const total = side.items.reduce((sum, name) => sum + assetByName.get(name).value, 0);
+        document.querySelector(`#${sideName}-total`).textContent = formatValue(total);
+        document.querySelector(`#${sideName}-slot-count`).textContent = `${side.items.length} / 4`;
+        container.replaceChildren();
+
+        for (let index = 0; index < 4; index += 1) {
+          const name = side.items[index];
+          if (!name) {
+            const emptySlot = document.createElement("div");
+            emptySlot.className = "trade-slot-empty";
+            const addSymbol = document.createElement("span");
+            addSymbol.className = "slot-plus";
+            addSymbol.textContent = "+";
+            const emptyLabel = document.createElement("span");
+            emptyLabel.textContent = side.items.length === 0 && index === 0 ? "Add an item to start" : "Empty slot";
+            emptySlot.append(addSymbol, emptyLabel);
+            container.append(emptySlot);
+            continue;
+          }
+
+          const asset = assetByName.get(name);
+          const row = document.createElement("article");
+          row.className = "trade-item";
+          row.dataset.category = asset.category;
+          const icon = createAssetIcon(asset, "trade-item-emoji");
+          const copy = document.createElement("span");
+          copy.className = "trade-item-copy";
+          const label = document.createElement("span");
+          label.className = "trade-item-name";
+          label.textContent = asset.name;
+          const category = document.createElement("span");
+          category.className = "trade-item-category";
+          category.textContent = asset.category === "Fruit" ? `${asset.category} · ${asset.type}` : asset.type;
+          const value = document.createElement("span");
+          value.className = "trade-item-value";
+          value.textContent = formatValue(asset.value);
+          copy.append(label, category, value);
+          const remove = document.createElement("button");
+          remove.className = "remove-button";
+          remove.type = "button";
+          remove.setAttribute("aria-label", `Remove ${asset.name} from ${sideName === "you" ? "your" : "their"} offer`);
+          remove.textContent = "×";
+          remove.addEventListener("click", () => {
+            side.items.splice(index, 1);
+            renderTrade();
+          });
+          row.append(icon, copy, remove);
+          container.append(row);
+        }
+
+        const addButton = document.querySelector(`#${sideName}-add`);
+        addButton.disabled = side.items.length >= 4;
+        addButton.textContent = side.items.length >= 4 ? "Full" : "Add item";
+      }
+
+      function renderTrade() {
+        renderSide("you");
+        renderSide("them");
+        const youValue = tradeSides.you.items.reduce((sum, name) => sum + assetByName.get(name).value, 0);
+        const themValue = tradeSides.them.items.reduce((sum, name) => sum + assetByName.get(name).value, 0);
+        for (const [sideName, value, label] of [
+          ["you", youValue, "Your side"],
+          ["them", themValue, "Their side"]
+        ]) {
+          const result = document.querySelector(`#${sideName}-result`);
+          result.replaceChildren(document.createTextNode(formatValue(value)));
+          const sideCaption = document.createElement("span");
+          sideCaption.textContent = `${label} · ${tradeSides[sideName].items.length}/4 items`;
+          result.append(sideCaption);
+        }
+        const combinedValue = youValue + themValue;
+        const yourShare = combinedValue === 0 ? 50 : Math.round((youValue / combinedValue) * 100);
+        const difference = Math.abs(youValue - themValue);
+        const differencePercent = (difference / Math.max(youValue, themValue, 1)) * 100;
+        document.querySelector("#balance-fill").style.width = `${yourShare}%`;
+        const balanceTrack = document.querySelector("#balance-track");
+        balanceTrack.setAttribute("aria-valuenow", String(yourShare));
+        balanceTrack.setAttribute("aria-valuetext", `Your side ${yourShare} percent, their side ${100 - yourShare} percent`);
+        const differenceSummary = document.querySelector("#trade-difference");
+        const differenceValue = document.createElement("strong");
+        differenceValue.textContent = formatValue(difference);
+        differenceSummary.replaceChildren(document.createTextNode("Difference: "), differenceValue);
+        if (difference > 0) {
+          const percentText = differencePercent < 0.1 ? "<0.1" : Number(differencePercent.toFixed(1)).toString();
+          differenceSummary.append(document.createTextNode(` · ${percentText}% of the higher side`));
+        }
+        document.querySelector("#clear-trade").disabled = combinedValue === 0;
+        const status = document.querySelector("#trade-status");
+        status.className = "result-status";
+
+        if (youValue === 0 && themValue === 0) {
+          status.textContent = "Add items to compare";
+        } else if (youValue === themValue) {
+          status.textContent = "Fair trade";
+          status.classList.add("good");
+        } else if (youValue > themValue) {
+          status.textContent = "You give more";
+          status.classList.add("bad");
+        } else {
+          status.textContent = "You get more";
+          status.classList.add("good");
+        }
+      }
+
+      function showTab(section) {
+        const showCatalog = section !== "Trade" && section !== "Stock";
+        activeSection = section === "Trade" || section === "Stock" ? activeSection : section;
+        if (section !== "Trade" && section !== "Stock") {
+          activeFilter = "All";
+          filters.forEach(filter => filter.setAttribute("aria-pressed", String(filter.dataset.filter === "All")));
+          const catalogCopy = {
+            Fruit: ["Fruit inventory", "Browse fruits by type and compare estimated trade values."],
+            Variant: ["Fruit variants & skins", "Browse collectible fruit variants and compare their estimated trade values."],
+            Permanent: ["Permanent fruits", "Explore permanent fruit game passes and their estimated trade values."],
+            "Game Pass": ["Game passes", "Compare game pass estimates before making a trade."],
+            All: ["All trade items", "Browse physical fruits, permanent fruits, and game passes together."],
+            Favorites: ["Favorite fruits", "Your saved fruit picks, kept in this browser profile."],
+            Ranking: ["Most valuable fruits", "Top 10 physical fruits ranked by their current community trade estimates."],
+            History: ["Recently checked", "The 10 most recent fruit checks in this browser profile."]
+          };
+          catalogTitle.textContent = catalogCopy[section][0];
+          catalogCaption.textContent = catalogCopy[section][1];
+          fruitTypeFilters.hidden = !["Fruit", "Favorites"].includes(section);
+          document.querySelector("#favorites-toolbar").hidden = section !== "Favorites";
+          search.placeholder = section === "Favorites"
+            ? "Search favorite fruits..."
+            : section === "History" ? "Search recent fruits..." : "Search fruits and passes...";
+          if (section !== "Favorites") {
+            document.querySelector("#favorites-sort").value = "value-desc";
+          }
+          renderFruitList();
+        }
+        if (section === "Stock") renderStockPanel();
+        document.querySelectorAll(".tab[role='tab']").forEach(tab => {
+          tab.setAttribute("aria-selected", String(
+            section === "Trade" ? tab === tradeTab : tab.dataset.section === section
+          ));
+        });
+        valuesPanel.hidden = !showCatalog;
+        tradePanel.hidden = section !== "Trade";
+        const stockPanel = document.querySelector("#stock-panel");
+        stockPanel.hidden = section !== "Stock";
+        if (section === "Stock") {
+          setTimeout(() => {
+            const stockTop = stockPanel.getBoundingClientRect().top + window.scrollY;
+            window.scrollTo({ top: Math.max(0, stockTop - 12) });
+          }, 150);
+        }
+      }
+
+      filters.forEach(button => {
+        button.addEventListener("click", () => {
+          activeFilter = button.dataset.filter;
+          filters.forEach(filter => filter.setAttribute("aria-pressed", String(filter === button)));
+          renderFruitList();
+        });
+      });
+      document.querySelector("#favorites-sort").addEventListener("change", renderFruitList);
+      document.querySelector("#favorites-clear").addEventListener("click", () => {
+        if (favorites.size === 0 || !window.confirm("Remove all fruits from your favorites?")) return;
+        favorites.clear();
+        saveProfileData();
+        refreshFeatureCounts();
+        renderFruitList();
+        showQuickAddMessage("All favorite fruits removed.");
+      });
+      document.querySelectorAll(".stock-tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+          activeStockType = tab.id.includes("mirage") ? "mirage" : "dealer";
+          renderStockPanel();
+        });
+      });
+      document.querySelector("#live-stock-view-tab").addEventListener("click", () => {
+        activeStockView = "live";
+        renderStockPanel();
+      });
+      document.querySelector("#manual-stock-view-tab").addEventListener("click", () => {
+        activeStockView = "manual";
+        renderStockPanel();
+      });
+      document.querySelector("#stock-refresh").addEventListener("click", refreshLiveStock);
+      document.querySelector("#stock-edit").addEventListener("click", openStockEditor);
+      document.querySelector("#stock-editor-close").addEventListener("click", () => {
+        document.querySelector("#stock-editor-dialog").close();
+      });
+      document.querySelector("#stock-editor-cancel").addEventListener("click", () => {
+        document.querySelector("#stock-editor-dialog").close();
+      });
+      document.querySelector("#stock-editor-save").addEventListener("click", saveStockDraft);
+      document.querySelector("#stock-add-form").addEventListener("submit", event => {
+        event.preventDefault();
+        const input = document.querySelector("#stock-fruit-input");
+        const typedName = input.value.trim();
+        const asset = assets.find(candidate =>
+          candidate.category === "Fruit" && candidate.name.toLocaleLowerCase() === typedName.toLocaleLowerCase()
+        );
+        if (!asset) {
+          showQuickAddMessage("Choose a fruit from the suggestions list.", true);
+          input.focus();
+          return;
+        }
+        if (stockDraft.includes(asset.name)) {
+          showQuickAddMessage(`${asset.name} is already in this stock list.`, true);
+          input.value = "";
+          input.focus();
+          return;
+        }
+        stockDraft.push(asset.name);
+        input.value = "";
+        renderStockDraft();
+        input.focus();
+      });
+      document.querySelector("#profile-mode-toggle").addEventListener("click", () => {
+        isCreatingProfile = !isCreatingProfile;
+        const passwordInput = document.querySelector("#profile-password");
+        passwordInput.value = "";
+        document.querySelector("#profile-password-confirm").value = "";
+        renderProfile();
+      });
+      document.querySelector("#profile-form").addEventListener("submit", async event => {
+        event.preventDefault();
+        const input = document.querySelector("#profile-name");
+        const passwordInput = document.querySelector("#profile-password");
+        const password = passwordInput.value;
+        const nextProfileName = input.value.trim().normalize("NFKC").slice(0, 24);
+        const accountStorageKey = getAccountStorageKey(nextProfileName);
+        if (nextProfileName.length < 2) {
+          showQuickAddMessage("Enter a name with at least 2 characters.", true);
+          input.focus();
+          return;
+        }
+        if (password.length < 8) {
+          showQuickAddMessage("Use a password with at least 8 characters.", true);
+          passwordInput.focus();
+          return;
+        }
+
+        const submitButton = document.querySelector("#profile-submit");
+        submitButton.disabled = true;
+        try {
+          let account;
+          if (isCreatingProfile) {
+            const passwordConfirmation = document.querySelector("#profile-password-confirm").value;
+            if (password !== passwordConfirmation) {
+              showQuickAddMessage("The passwords do not match.", true);
+              document.querySelector("#profile-password-confirm").focus();
+              return;
+            }
+            if (localStorage.getItem(accountStorageKey)) {
+              showQuickAddMessage("That profile name is already in use in this browser.", true);
+              input.focus();
+              return;
+            }
+            const salt = window.crypto.getRandomValues(new Uint8Array(16));
+            const passwordHash = await hashPassword(password, salt);
+            account = {
+              name: nextProfileName,
+              avatar: profileAvatar,
+              salt: bytesToBase64(salt),
+              passwordHash: bytesToBase64(passwordHash),
+              iterations: passwordHashIterations
+            };
+            localStorage.setItem(accountStorageKey, JSON.stringify(account));
+          } else {
+            const storedAccount = localStorage.getItem(accountStorageKey);
+            if (!storedAccount) {
+              showQuickAddMessage("No profile with that name. Create a profile first.", true);
+              input.focus();
+              return;
+            }
+            account = JSON.parse(storedAccount);
+            const enteredHash = await hashPassword(
+              password,
+              base64ToBytes(account.salt),
+              account.iterations || passwordHashIterations
+            );
+            if (!hashesMatch(enteredHash, base64ToBytes(account.passwordHash))) {
+              showQuickAddMessage("Incorrect password.", true);
+              passwordInput.focus();
+              return;
+            }
+          }
+          localStorage.setItem("fruitfinder:session", normalizeAccountName(account.name));
+          sessionStorage.removeItem("fruitfinder:session");
+          profileName = account.name;
+          profileAvatar = normalizeProfileAvatar(account.avatar);
+          isCreatingProfile = false;
+          input.value = account.name;
+          passwordInput.value = "";
+          document.querySelector("#profile-password-confirm").value = "";
+          loadProfileData();
+          renderProfile();
+          refreshFeatureCounts();
+          renderFruitList();
+          showQuickAddMessage(`Signed in locally as ${profileName}.`);
+        } catch (error) {
+          console.error("Could not create or sign in to your local FruitFinder profile.", error);
+          const message = error.message === "Secure browser cryptography is unavailable."
+            ? "Secure password hashing is unavailable. Open this page on localhost or HTTPS."
+            : "Could not save or verify this profile in your browser.";
+          showQuickAddMessage(message, true);
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+      document.querySelector("#profile-signout").addEventListener("click", () => {
+        profileName = "";
+        profileAvatar = "West Dragon";
+        try {
+          localStorage.removeItem("fruitfinder:session");
+          sessionStorage.removeItem("fruitfinder:session");
+        } catch (error) {
+          console.error("Could not end your FruitFinder session.", error);
+          showQuickAddMessage("Could not clear the local session.", true);
+          return;
+        }
+        loadProfileData();
+        renderProfile();
+        refreshFeatureCounts();
+        renderFruitList();
+        showQuickAddMessage("Signed out. Guest data is now shown.");
+      });
+      document.querySelector("#profile-avatar-open").addEventListener("click", () => {
+        document.querySelector("#profile-dialog").showModal();
+      });
+      document.querySelector("#profile-dialog-close").addEventListener("click", () => {
+        document.querySelector("#profile-dialog").close();
+      });
+      document.querySelector("#profile-avatar-form").addEventListener("submit", event => {
+        event.preventDefault();
+        if (!profileName) return;
+        const selectedAvatar = document.querySelector("#profile-avatar-select").value;
+        if (!profileAvatars.includes(selectedAvatar)) {
+          showQuickAddMessage("Choose a valid fruit avatar.", true);
+          return;
+        }
+        try {
+          const accountKey = getAccountStorageKey(profileName);
+          const account = JSON.parse(localStorage.getItem(accountKey) || "null");
+          if (!account || normalizeAccountName(account.name) !== normalizeAccountName(profileName)) {
+            showQuickAddMessage("Could not find your local profile.", true);
+            return;
+          }
+          account.avatar = selectedAvatar;
+          localStorage.setItem(accountKey, JSON.stringify(account));
+          profileAvatar = selectedAvatar;
+          renderProfile();
+          document.querySelector("#profile-name-message").textContent = "Profile picture updated.";
+        } catch (error) {
+          console.error("Could not update the profile picture.", error);
+          showQuickAddMessage("Could not save your profile picture in this browser.", true);
+        }
+      });
+      document.querySelector("#profile-change-name-form").addEventListener("submit", event => {
+        event.preventDefault();
+        if (!profileName) return;
+        const message = document.querySelector("#profile-name-message");
+        const newNameInput = document.querySelector("#profile-new-name");
+        const nextName = newNameInput.value.trim().normalize("NFKC").slice(0, 24);
+        if (nextName.length < 2) {
+          message.textContent = "Name must contain at least 2 characters.";
+          return;
+        }
+        const oldAccountKey = getAccountStorageKey(profileName);
+        const newAccountKey = getAccountStorageKey(nextName);
+        if (oldAccountKey === newAccountKey) {
+          message.textContent = "That is already your profile name.";
+          return;
+        }
+        if (localStorage.getItem(newAccountKey)) {
+          message.textContent = "That name is already in use in this browser.";
+          return;
+        }
+
+        const oldFavoritesKey = getProfileStorageKey("favorites");
+        const oldHistoryKey = getProfileStorageKey("history");
+        const nextProfileKey = encodeURIComponent(normalizeAccountName(nextName));
+        const newFavoritesKey = `fruitfinder:${nextProfileKey}:favorites`;
+        const newHistoryKey = `fruitfinder:${nextProfileKey}:history`;
+        const stagedKeys = [];
+        let committed = false;
+        try {
+          const account = JSON.parse(localStorage.getItem(oldAccountKey) || "null");
+          if (!account || normalizeAccountName(account.name) !== normalizeAccountName(profileName)) {
+            message.textContent = "Could not verify your local profile.";
+            return;
+          }
+          account.name = nextName;
+          localStorage.setItem(newFavoritesKey, localStorage.getItem(oldFavoritesKey) || "[]");
+          stagedKeys.push(newFavoritesKey);
+          localStorage.setItem(newHistoryKey, localStorage.getItem(oldHistoryKey) || "[]");
+          stagedKeys.push(newHistoryKey);
+          localStorage.setItem(newAccountKey, JSON.stringify(account));
+          stagedKeys.push(newAccountKey);
+          localStorage.setItem("fruitfinder:session", normalizeAccountName(nextName));
+          profileName = nextName;
+          committed = true;
+          renderProfile();
+          message.textContent = "Profile name changed.";
+        } catch (error) {
+          if (!committed) {
+            try {
+              for (const key of stagedKeys) localStorage.removeItem(key);
+            } catch (cleanupError) {
+              console.error("Could not clean up an incomplete profile rename.", cleanupError);
+            }
+            console.error("Could not change the profile name.", error);
+            message.textContent = "Could not save the new name. Your old profile is still available.";
+            return;
+          }
+          console.error("Profile was renamed, but storage cleanup failed.", error);
+          message.textContent = "Name changed, but old profile data could not be cleaned up.";
+          return;
+        }
+        try {
+          localStorage.removeItem(oldAccountKey);
+          localStorage.removeItem(oldFavoritesKey);
+          localStorage.removeItem(oldHistoryKey);
+        } catch (error) {
+          console.error("Profile was renamed, but storage cleanup failed.", error);
+          message.textContent = "Name changed, but old profile data could not be cleaned up.";
+        }
+      });
+      document.querySelector("#profile-change-password-form").addEventListener("submit", async event => {
+        event.preventDefault();
+        if (!profileName) return;
+        const form = event.currentTarget;
+        const currentPasswordInput = document.querySelector("#profile-current-password");
+        const newPasswordInput = document.querySelector("#profile-new-password");
+        const confirmPasswordInput = document.querySelector("#profile-confirm-password");
+        const message = document.querySelector("#profile-password-message");
+        const currentPassword = currentPasswordInput.value;
+        const newPassword = newPasswordInput.value;
+        if (newPassword.length < 8) {
+          message.textContent = "New password must contain at least 8 characters.";
+          return;
+        }
+        if (newPassword !== confirmPasswordInput.value) {
+          message.textContent = "The new passwords do not match.";
+          return;
+        }
+        const submitButton = form.querySelector("button[type='submit']");
+        submitButton.disabled = true;
+        message.textContent = "";
+        try {
+          const accountKey = getAccountStorageKey(profileName);
+          const account = JSON.parse(localStorage.getItem(accountKey) || "null");
+          if (!account) {
+            message.textContent = "Could not find your local profile.";
+            return;
+          }
+          const currentHash = await hashPassword(
+            currentPassword,
+            base64ToBytes(account.salt),
+            account.iterations || passwordHashIterations
+          );
+          if (!hashesMatch(currentHash, base64ToBytes(account.passwordHash))) {
+            message.textContent = "Current password is incorrect.";
+            currentPasswordInput.focus();
+            return;
+          }
+          const salt = window.crypto.getRandomValues(new Uint8Array(16));
+          const passwordHash = await hashPassword(newPassword, salt);
+          account.salt = bytesToBase64(salt);
+          account.passwordHash = bytesToBase64(passwordHash);
+          account.iterations = passwordHashIterations;
+          localStorage.setItem(accountKey, JSON.stringify(account));
+          message.textContent = "Password changed.";
+          currentPasswordInput.value = "";
+          newPasswordInput.value = "";
+          confirmPasswordInput.value = "";
+        } catch (error) {
+          console.error("Could not change the profile password.", error);
+          message.textContent = error.message === "Secure browser cryptography is unavailable."
+            ? "Secure browser cryptography is unavailable. Use localhost or HTTPS."
+            : "Could not change the password in this browser.";
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+      search.addEventListener("input", renderFruitList);
+      for (const sideName of ["you", "them"]) {
+        const side = tradeSides[sideName];
+        side.search.addEventListener("focus", () => renderPickerOptions(sideName));
+        side.search.addEventListener("input", () => renderPickerOptions(sideName));
+        side.search.addEventListener("keydown", event => {
+          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+            event.preventDefault();
+            if (side.options.hidden) renderPickerOptions(sideName);
+            movePickerSelection(sideName, event.key === "ArrowDown" ? 1 : -1);
+          } else if (event.key === "Enter" && !side.options.hidden) {
+            event.preventDefault();
+            const activeOption = side.options.querySelector('[aria-selected="true"]');
+            if (activeOption) activeOption.click();
+            else {
+              const firstOption = side.options.querySelector(".picker-option");
+              if (firstOption) firstOption.click();
+            }
+          } else if (event.key === "Escape") {
+            closePicker(sideName);
+          }
+        });
+      }
+      document.addEventListener("pointerdown", event => {
+        for (const sideName of ["you", "them"]) {
+          const picker = document.querySelector(`#${sideName}-picker`);
+          if (!picker.contains(event.target)) closePicker(sideName);
+        }
+      });
+      document.querySelectorAll(".tab[data-section]").forEach(tab => {
+        tab.addEventListener("click", () => showTab(tab.dataset.section));
+      });
+      tradeTab.addEventListener("click", () => showTab("Trade"));
+      for (const sideName of ["you", "them"]) {
+        document.querySelector(`#${sideName}-add`).addEventListener("click", () => {
+          addAssetToSide(sideName, tradeSides[sideName].selectedName);
+        });
+        document.querySelector(`#${sideName}-clear`).addEventListener("click", () => {
+          tradeSides[sideName].items = [];
+          renderTrade();
+        });
+      }
+      document.querySelector("#swap-offers").addEventListener("click", () => {
+        [tradeSides.you.items, tradeSides.them.items] = [tradeSides.them.items, tradeSides.you.items];
+        renderTrade();
+      });
+      document.querySelector("#clear-trade").addEventListener("click", () => {
+        tradeSides.you.items = [];
+        tradeSides.them.items = [];
+        renderTrade();
+      });
+
+      document.querySelector("#fruit-count").textContent = String(assets.length);
+      document.querySelector("#fruit-tab-count").textContent = String(fruits.length);
+      document.querySelector("#variants-tab-count").textContent = String(fruitVariants.length);
+      document.querySelector("#permanent-tab-count").textContent = String(permanentFruits.length);
+      document.querySelector("#passes-tab-count").textContent = String(gamePasses.length);
+      document.querySelector("#stock-fruit-options").replaceChildren(...assets
+        .filter(asset => asset.category === "Fruit")
+        .map(asset => {
+          const option = document.createElement("option");
+          option.value = asset.name;
+          return option;
+        }));
+      restoreProfile();
+      loadStockData();
+      loadLiveStockCache();
+      renderStockPanel();
+      refreshLiveStock();
+      setInterval(refreshLiveStock, 60 * 1000);
+      setInterval(updateStockCountdowns, 1000);
+      renderPicker("you");
+      renderPicker("them");
+      renderFruitList();
+      renderTrade();
+      showTab("Stock");
+    })();
+  </script>
+</body>
+</html>
